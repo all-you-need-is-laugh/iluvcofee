@@ -37,10 +37,14 @@ export class CoffeesService {
   }
 
   create(createCoffeeDto: CreateCoffeeDto) {
-    this.coffees.push({
+    const newCoffee = {
       id: ++this.lastId,
       ...createCoffeeDto,
-    });
+    };
+
+    this.coffees.push(newCoffee);
+
+    return newCoffee;
   }
 
   update(id: number, updateCoffeeDto: UpdateCoffeeDto) {
