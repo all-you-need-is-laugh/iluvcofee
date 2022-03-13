@@ -10,35 +10,36 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { CoffeesService } from './coffees.service';
 
 @Controller('coffees')
 export class CoffeesController {
+  constructor(private readonly coffeeService: CoffeesService) {}
+
   @Get()
-  listAll(@Query() paginationQuery) {
-    const { limit = 10, offset = 0 } = paginationQuery;
-    return `All coffees: ${limit} rows starting from ${offset}`;
+  findAll(@Query() paginationQuery) {
+    // const { limit = 10, offset = 0 } = paginationQuery;
+    return this.coffeeService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.coffeeService.findOne(parseInt(id));
   }
 
   @Post()
   @HttpCode(HttpStatus.GONE)
   create(@Body() body) {
-    return `"${body.name}" added!`;
-  }
-
-  @Get(':id')
-  read(@Param('id') id) {
-    return `Coffee with ID #${id}`;
+    return this.coffeeService.create(body);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() body) {
-    return `Coffee with ID #${id} is updated with values: ${JSON.stringify(
-      body,
-    )}`;
+    return this.coffeeService.update(parseInt(id), body);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return `Coffee with ID #${id} removed`;
+  remove(@Param('id') id: string) {
+    return this.coffeeService.remove(parseInt(id));
   }
 }
