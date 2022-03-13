@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2022-03-13T18:06:21.840Z",
+  "__export_date": "2022-03-13T18:28:15.990Z",
   "__export_source": "insomnia.desktop.app:v2022.1.1",
   "resources": [
     {
@@ -84,7 +84,7 @@
     {
       "_id": "req_683eab9170714bb9a3240e0c7d34f69f",
       "parentId": "fld_0f605343d2124d978ceed739dbcdf308",
-      "modified": 1647187867894,
+      "modified": 1647195240612,
       "created": 1647179878422,
       "url": "{{ _.ORIGIN }}/coffees/1",
       "name": "Read",
@@ -107,7 +107,7 @@
     {
       "_id": "req_7fac375cccc241d889cf502cf687a018",
       "parentId": "fld_0f605343d2124d978ceed739dbcdf308",
-      "modified": 1647194719660,
+      "modified": 1647195903396,
       "created": 1647179974356,
       "url": "{{ _.ORIGIN }}/coffees",
       "name": "Create",
@@ -115,7 +115,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n\t\"name\": \"Old Florida Roast\",\n\t\"brand\": \"Buddy Brew\"\n}"
+        "text": "{\n\t\"name\": \"Old Florida Roast\",\n\t\"brand\": \"Buddy Brew\",\n\t\"flavors\": [\"wallnut\"]\n}"
       },
       "parameters": [],
       "headers": [
@@ -139,7 +139,7 @@
     {
       "_id": "req_53c39f186b15438a9ad15f4801abc0d2",
       "parentId": "fld_0f605343d2124d978ceed739dbcdf308",
-      "modified": 1647194720743,
+      "modified": 1647196074120,
       "created": 1647187291295,
       "url": "{{ _.ORIGIN }}/coffees/2",
       "name": "Update",
