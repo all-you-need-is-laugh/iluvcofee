@@ -1,0 +1,254 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2022-03-13T17:23:22.204Z",
+  "__export_source": "insomnia.desktop.app:v2022.1.1",
+  "resources": [
+    {
+      "_id": "req_5d47f63417b44dee833c47acdace82d1",
+      "parentId": "wrk_e7f7f8d8394b49c59dd3aa3b045c3675",
+      "modified": 1647178921755,
+      "created": 1647014066004,
+      "url": "{{ _.ORIGIN }}/",
+      "name": "API Root",
+      "description": "",
+      "method": "GET",
+      "body": {
+        "mimeType": "text/plain",
+        "text": ""
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "text/plain",
+          "id": "pair_425f0e77f5b848d5935b8118b0f6d488"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1647014066004,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "wrk_e7f7f8d8394b49c59dd3aa3b045c3675",
+      "parentId": null,
+      "modified": 1647014065972,
+      "created": 1647014065972,
+      "name": "New Document",
+      "description": "",
+      "scope": "design",
+      "_type": "workspace"
+    },
+    {
+      "_id": "req_df58fd7efb064b05974acd9e526ab98b",
+      "parentId": "fld_0f605343d2124d978ceed739dbcdf308",
+      "modified": 1647187856357,
+      "created": 1647179788351,
+      "url": "{{ _.ORIGIN }}/coffees",
+      "name": "List all",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1647179788352,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "fld_0f605343d2124d978ceed739dbcdf308",
+      "parentId": "wrk_e7f7f8d8394b49c59dd3aa3b045c3675",
+      "modified": 1647179771575,
+      "created": 1647179771575,
+      "name": "Coffees",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1647179771575,
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_683eab9170714bb9a3240e0c7d34f69f",
+      "parentId": "fld_0f605343d2124d978ceed739dbcdf308",
+      "modified": 1647187867894,
+      "created": 1647179878422,
+      "url": "{{ _.ORIGIN }}/coffees/1",
+      "name": "Read",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1647135768353.3125,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_7fac375cccc241d889cf502cf687a018",
+      "parentId": "fld_0f605343d2124d978ceed739dbcdf308",
+      "modified": 1647187285239,
+      "created": 1647179974356,
+      "url": "{{ _.ORIGIN }}/coffees",
+      "name": "Create",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n\t\"name\": \"Old Florida Roast\",\n\t\"brand\": \"Buddy Brew\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "id": "pair_7968c9386837423890092e8f0fe987ab"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1647138357765,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_53c39f186b15438a9ad15f4801abc0d2",
+      "parentId": "fld_0f605343d2124d978ceed739dbcdf308",
+      "modified": 1647187866652,
+      "created": 1647187291295,
+      "url": "{{ _.ORIGIN }}/coffees/2",
+      "name": "Update",
+      "description": "",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n\t\"brand\": \"Cosmo Brew\",\n\t\"tags\": [\"brew\"]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "id": "pair_7968c9386837423890092e8f0fe987ab"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1647133178941.625,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_c611eb8a216344e7b634deb30e046db1",
+      "parentId": "fld_0f605343d2124d978ceed739dbcdf308",
+      "modified": 1647187874580,
+      "created": 1647187816036,
+      "url": "{{ _.ORIGIN }}/coffees/3",
+      "name": "Delete",
+      "description": "",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1647128000118.25,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "env_e3bcad3250c8b27de2c6a350df487a5b9175051b",
+      "parentId": "wrk_e7f7f8d8394b49c59dd3aa3b045c3675",
+      "modified": 1647179308700,
+      "created": 1647014065991,
+      "name": "Base Environment",
+      "data": {},
+      "dataPropertyOrder": {},
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1647014065991,
+      "_type": "environment"
+    },
+    {
+      "_id": "jar_e3bcad3250c8b27de2c6a350df487a5b9175051b",
+      "parentId": "wrk_e7f7f8d8394b49c59dd3aa3b045c3675",
+      "modified": 1647192022143,
+      "created": 1647192022143,
+      "name": "Default Jar",
+      "cookies": [],
+      "_type": "cookie_jar"
+    },
+    {
+      "_id": "spc_4f58b85821084dd5a4df735ab7077912",
+      "parentId": "wrk_e7f7f8d8394b49c59dd3aa3b045c3675",
+      "modified": 1647178961793,
+      "created": 1647014065984,
+      "fileName": "Iluvcofee",
+      "contents": "",
+      "contentType": "yaml",
+      "_type": "api_spec"
+    },
+    {
+      "_id": "uts_f885c450bcee47ffa06fa49bdfd8305a",
+      "parentId": "wrk_e7f7f8d8394b49c59dd3aa3b045c3675",
+      "modified": 1647014066006,
+      "created": 1647014066006,
+      "name": "Example Test Suite",
+      "_type": "unit_test_suite"
+    },
+    {
+      "_id": "env_c19c6581066b446c90ecde37175c57e9",
+      "parentId": "env_e3bcad3250c8b27de2c6a350df487a5b9175051b",
+      "modified": 1647179317894,
+      "created": 1647178695459,
+      "name": "Local Dev",
+      "data": {
+        "ORIGIN": "http://localhost:3000"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "ORIGIN"
+        ]
+      },
+      "color": "#278b45",
+      "isPrivate": false,
+      "metaSortKey": 1647178695459,
+      "_type": "environment"
+    }
+  ]
+}
