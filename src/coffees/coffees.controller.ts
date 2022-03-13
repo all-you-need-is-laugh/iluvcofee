@@ -8,13 +8,15 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 
 @Controller('coffees')
 export class CoffeesController {
   @Get()
-  listAll() {
-    return 'All coffees';
+  listAll(@Query() paginationQuery) {
+    const { limit = 10, offset = 0 } = paginationQuery;
+    return `All coffees: ${limit} rows starting from ${offset}`;
   }
 
   @Post()

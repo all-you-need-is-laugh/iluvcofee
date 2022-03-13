@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2022-03-13T17:23:22.204Z",
+  "__export_date": "2022-03-13T17:34:51.649Z",
   "__export_source": "insomnia.desktop.app:v2022.1.1",
   "resources": [
     {
@@ -41,7 +41,7 @@
       "parentId": null,
       "modified": 1647014065972,
       "created": 1647014065972,
-      "name": "New Document",
+      "name": "Iluvcoffee",
       "description": "",
       "scope": "design",
       "_type": "workspace"
@@ -49,9 +49,9 @@
     {
       "_id": "req_df58fd7efb064b05974acd9e526ab98b",
       "parentId": "fld_0f605343d2124d978ceed739dbcdf308",
-      "modified": 1647187856357,
+      "modified": 1647192786603,
       "created": 1647179788351,
-      "url": "{{ _.ORIGIN }}/coffees",
+      "url": "{{ _.ORIGIN }}/coffees?offset=2&limit=20",
       "name": "List all",
       "description": "",
       "method": "GET",
