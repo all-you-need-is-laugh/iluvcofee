@@ -26,7 +26,7 @@ module.exports = {
     'import/named': 'error',
     'import/no-unresolved': 'error',
     'indent': 'off',
-    '@typescript-eslint/indent': ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchStatement'] }],
+    '@typescript-eslint/indent': ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchStatement', 'Identifier'] }],
     // TODO: review ESLint rule
     '@typescript-eslint/interface-name-prefix': 'off',
     'key-spacing': 'warn',
@@ -63,8 +63,11 @@ module.exports = {
       ],
       'skipWords': [
         'dto',
+        'iluvcofee',
         'interceptable',
         'localhost',
+        'nullable',
+        'orm',
         'promisify',
         'redis',
         'ttl',
