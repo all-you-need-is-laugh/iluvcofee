@@ -6,7 +6,7 @@ import {
   Param,
   Patch,
   Post,
-  Query,
+  Query
 } from '@nestjs/common';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
@@ -14,31 +14,31 @@ import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 
 @Controller('coffees')
 export class CoffeesController {
-  constructor(private readonly coffeeService: CoffeesService) {}
+  constructor (private readonly coffeeService: CoffeesService) {}
 
   @Get()
-  findAll(@Query() paginationQuery) {
+  findAll (@Query() _paginationQuery) {
     // const { limit = 10, offset = 0 } = paginationQuery;
     return this.coffeeService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne (@Param('id') id: number) {
     return this.coffeeService.findOne(id);
   }
 
   @Post()
-  create(@Body() createCoffeeDto: CreateCoffeeDto) {
+  create (@Body() createCoffeeDto: CreateCoffeeDto) {
     return this.coffeeService.create(createCoffeeDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateCoffeeDto: UpdateCoffeeDto) {
+  update (@Param('id') id: number, @Body() updateCoffeeDto: UpdateCoffeeDto) {
     return this.coffeeService.update(id, updateCoffeeDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
+  remove (@Param('id') id: number) {
     return this.coffeeService.remove(id);
   }
 }
