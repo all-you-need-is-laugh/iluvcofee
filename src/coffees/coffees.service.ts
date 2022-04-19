@@ -22,11 +22,11 @@ export class CoffeesService {
 
   private lastId = this.coffees.length;
 
-  findAll () {
+  async findAll (): Promise<Coffee[]> {
     return this.coffees;
   }
 
-  findOne (id: number) {
+  async findOne (id: number): Promise<Coffee> {
     const coffee = this.coffees.find((item) => item.id === id);
 
     if (!coffee) {
@@ -36,7 +36,7 @@ export class CoffeesService {
     return coffee;
   }
 
-  create (createCoffeeDto: CreateCoffeeDto) {
+  async create (createCoffeeDto: CreateCoffeeDto): Promise<Coffee> {
     const newCoffee = {
       id: ++this.lastId,
       ...createCoffeeDto,
@@ -47,7 +47,7 @@ export class CoffeesService {
     return newCoffee;
   }
 
-  update (id: number, updateCoffeeDto: UpdateCoffeeDto) {
+  async update (id: number, updateCoffeeDto: UpdateCoffeeDto): Promise<Coffee> {
     const existingCoffee = this.findOne(id);
     if (!existingCoffee) {
       throw new NotFoundException(`Coffee #${id} not found`);
@@ -56,7 +56,7 @@ export class CoffeesService {
     return existingCoffee;
   }
 
-  remove (id: number) {
+  async remove (id: number): Promise<boolean> {
     const index = this.coffees.findIndex((item) => item.id === id);
     if (index >= 0) {
       this.coffees.splice(index, 1);

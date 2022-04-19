@@ -19,21 +19,27 @@ module.exports = {
     'arrow-spacing': 'warn',
     'computed-property-spacing': ['error', 'never'],
     'eol-last': ['warn', 'always'],
-    // TODO: review ESLint rule
     '@typescript-eslint/explicit-function-return-type': 'off',
-    // TODO: review ESLint rule
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'error',
     'import/named': 'error',
     'import/no-unresolved': 'error',
     'indent': 'off',
     '@typescript-eslint/indent': ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchStatement'] }],
-    // TODO: review ESLint rule
-    '@typescript-eslint/interface-name-prefix': 'off',
     'key-spacing': 'warn',
     'keyword-spacing': 'warn',
     'max-len': ['warn', { 'code': 120 }],
-    // TODO: review ESLint rule
-    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/naming-convention': [
+      'error',
+      {
+        selector: 'interface',
+        format: ['PascalCase'],
+        custom: {
+          regex: '^I[A-Z]',
+          match: false
+        }
+      }
+    ],
+    '@typescript-eslint/no-explicit-any': 'error',
     'no-multiple-empty-lines': ['warn', { max: 1, maxBOF: 0, maxEOF: 1}],
     'no-restricted-imports': 'off',
     'no-undef': 'error',

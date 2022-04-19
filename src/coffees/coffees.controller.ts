@@ -5,40 +5,39 @@ import {
   Get,
   Param,
   Patch,
-  Post,
-  Query
+  Post
 } from '@nestjs/common';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
+import { Coffee } from './entities/coffee.entity';
 
 @Controller('coffees')
 export class CoffeesController {
   constructor (private readonly coffeeService: CoffeesService) {}
 
   @Get()
-  findAll (@Query() _paginationQuery) {
-    // const { limit = 10, offset = 0 } = paginationQuery;
+  async findAll (): Promise<Coffee[]> {
     return this.coffeeService.findAll();
   }
 
   @Get(':id')
-  findOne (@Param('id') id: number) {
+  async findOne (@Param('id') id: number): Promise<Coffee> {
     return this.coffeeService.findOne(id);
   }
 
   @Post()
-  create (@Body() createCoffeeDto: CreateCoffeeDto) {
+  async create (@Body() createCoffeeDto: CreateCoffeeDto): Promise<Coffee> {
     return this.coffeeService.create(createCoffeeDto);
   }
 
   @Patch(':id')
-  update (@Param('id') id: number, @Body() updateCoffeeDto: UpdateCoffeeDto) {
+  async update (@Param('id') id: number, @Body() updateCoffeeDto: UpdateCoffeeDto): Promise<Coffee> {
     return this.coffeeService.update(id, updateCoffeeDto);
   }
 
   @Delete(':id')
-  remove (@Param('id') id: number) {
+  async remove (@Param('id') id: number): Promise<boolean> {
     return this.coffeeService.remove(id);
   }
 }
