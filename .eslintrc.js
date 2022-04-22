@@ -5,6 +5,14 @@ module.exports = {
   },
   extends: ['plugin:@typescript-eslint/recommended'],
   ignorePatterns: ['.eslintrc.js'],
+  overrides: [
+    {
+      files: ['*.js'],
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off'
+      }
+    }
+  ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: 'tsconfig.json',
