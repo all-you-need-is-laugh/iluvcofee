@@ -15,10 +15,14 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "pretest": "docker-compose up -d test-postgres",
+    "posttest": "docker-compose stop test-postgres && docker-compose rm -f test-postgres",
+    "test:watch": "yarn test --watch",
+    "test:cov": "yarn test --coverage",
+    "pretest:debug": "yarn pretest",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "posttest:debug": "yarn posttest",
+    "test:e2e": "yarn test --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
