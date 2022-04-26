@@ -7,7 +7,6 @@ module.exports = (testRegex, enableCoverage) => ({
       '!coverage/**',
       '!test/(configs|utils)/*'
     ],
-    coverageDirectory: 'coverage',
   } : {}),
   moduleFileExtensions: [
     'js',

@@ -18,7 +18,7 @@
     "test:all": "yarn test --config ./test/configs/jest-all.js",
     "test:clear-cache": "jest --clearCache",
     "test:cov": "yarn test --coverage --config ./test/configs/jest-all.js",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --config ./test/configs/jest-all.js --runInBand",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --config ./test/configs/jest-debug.js --runInBand",
     "test:e2e": "yarn test --config ./test/configs/jest-e2e.js",
     "test:unit": "yarn test --config ./test/configs/jest-unit.js",
     "test": "jest"
