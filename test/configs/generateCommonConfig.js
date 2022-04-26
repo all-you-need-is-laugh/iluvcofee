@@ -14,9 +14,10 @@ module.exports = (testRegex, enableCoverage) => ({
     'ts'
   ],
   rootDir: '../..',
+  setupFilesAfterEnv: [ 'jest-extended/all' ],
   testEnvironment: 'node',
   testRegex,
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest'
-  }
+  },
 });
