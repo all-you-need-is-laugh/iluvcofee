@@ -5,6 +5,14 @@ module.exports = {
   },
   extends: ['plugin:@typescript-eslint/recommended'],
   ignorePatterns: ['.eslintrc.js'],
+  overrides: [
+    {
+      files: ['*.js'],
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off'
+      }
+    }
+  ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: 'tsconfig.json',
@@ -44,7 +52,7 @@ module.exports = {
     'no-restricted-imports': 'off',
     'no-undef': 'error',
     'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '_.*', varsIgnorePattern: '_.*' }],
+    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '_.*' }],
     'object-curly-spacing': ['warn', 'always'],
     'object-property-newline': ['warn', { allowAllPropertiesOnSameLine: true} ],
     'quotes': ['warn', 'single', { 'avoidEscape': true }],
@@ -68,13 +76,20 @@ module.exports = {
         /\b\w*[^\w\s]+\w*\b/,
       ],
       'skipWords': [
+        'charset',
         'dto',
         'interceptable',
+        'keyof',
+        'len',
         'localhost',
         'promisify',
         'redis',
+        'superagent',
+        'supertest',
         'ttl',
+        'unknownimize',
         'unref',
+        'utf',
         'zadd',
         'zrange',
         'zrem'

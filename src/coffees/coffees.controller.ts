@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   Patch,
   Post
@@ -37,6 +38,7 @@ export class CoffeesController {
   }
 
   @Delete(':id')
+  @Header('content-type', 'application/json; charset=utf-8')
   async remove (@Param('id') id: number): Promise<boolean> {
     return this.coffeeService.remove(id);
   }

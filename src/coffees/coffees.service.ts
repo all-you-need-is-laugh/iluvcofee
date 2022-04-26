@@ -37,10 +37,7 @@ export class CoffeesService {
   }
 
   async create (createCoffeeDto: CreateCoffeeDto): Promise<Coffee> {
-    const newCoffee = {
-      id: ++this.lastId,
-      ...createCoffeeDto,
-    };
+    const newCoffee = Object.assign(new Coffee(), { id: ++this.lastId }, createCoffeeDto);
 
     this.coffees.push(newCoffee);
 
@@ -48,12 +45,14 @@ export class CoffeesService {
   }
 
   async update (id: number, updateCoffeeDto: UpdateCoffeeDto): Promise<Coffee> {
-    const existingCoffee = this.findOne(id);
-    if (!existingCoffee) {
+    const index = this.coffees.findIndex((item) => item.id === id);
+    const existingCoffee = this.coffees[index];
+    if (index === -1 || existingCoffee === undefined) {
       throw new NotFoundException(`Coffee #${id} not found`);
     }
-    Object.assign(existingCoffee, updateCoffeeDto);
-    return existingCoffee;
+    const updatedCoffee = Object.assign(new Coffee(), existingCoffee, updateCoffeeDto);
+    this.coffees[index] = updatedCoffee;
+    return updatedCoffee;
   }
 
   async remove (id: number): Promise<boolean> {
