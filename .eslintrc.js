@@ -5,6 +5,14 @@ module.exports = {
   },
   extends: ['plugin:@typescript-eslint/recommended'],
   ignorePatterns: ['.eslintrc.js'],
+  overrides: [
+    {
+      files: ['*.js'],
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off'
+      }
+    }
+  ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: 'tsconfig.json',
@@ -19,26 +27,33 @@ module.exports = {
     'arrow-spacing': 'warn',
     'computed-property-spacing': ['error', 'never'],
     'eol-last': ['warn', 'always'],
-    // TODO: review ESLint rule
     '@typescript-eslint/explicit-function-return-type': 'off',
-    // TODO: review ESLint rule
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'error',
     'import/named': 'error',
     'import/no-unresolved': 'error',
     'indent': 'off',
     '@typescript-eslint/indent': ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchStatement', 'Identifier'] }],
-    // TODO: review ESLint rule
     '@typescript-eslint/interface-name-prefix': 'off',
     'key-spacing': 'warn',
     'keyword-spacing': 'warn',
     'max-len': ['warn', { 'code': 120 }],
-    // TODO: review ESLint rule
-    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/naming-convention': [
+      'error',
+      {
+        selector: 'interface',
+        format: ['PascalCase'],
+        custom: {
+          regex: '^I[A-Z]',
+          match: false
+        }
+      }
+    ],
+    '@typescript-eslint/no-explicit-any': 'error',
     'no-multiple-empty-lines': ['warn', { max: 1, maxBOF: 0, maxEOF: 1}],
     'no-restricted-imports': 'off',
     'no-undef': 'error',
     'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '_.*', varsIgnorePattern: '_.*' }],
+    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '_.*' }],
     'object-curly-spacing': ['warn', 'always'],
     'object-property-newline': ['warn', { allowAllPropertiesOnSameLine: true} ],
     'quotes': ['warn', 'single', { 'avoidEscape': true }],
@@ -62,16 +77,23 @@ module.exports = {
         /\b\w*[^\w\s]+\w*\b/,
       ],
       'skipWords': [
+        'charset',
         'dto',
         'iluvcofee',
         'interceptable',
+        'keyof',
+        'len',
         'localhost',
         'nullable',
         'orm',
         'promisify',
         'redis',
+        'superagent',
+        'supertest',
         'ttl',
+        'unknownimize',
         'unref',
+        'utf',
         'zadd',
         'zrange',
         'zrem'

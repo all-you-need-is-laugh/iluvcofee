@@ -5,24 +5,26 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "scripts":{
+  "scripts": {
     "build": "nest build",
     "format": "yarn lint --fix",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "posttest": "docker-compose stop test-postgres && docker-compose rm -f test-postgres",
     "posttest:debug": "yarn posttest",
     "prebuild": "rimraf dist",
-    "pretest": "docker-compose up -d test-postgres",
+    "pretest": "yarn test:clear-cache; docker-compose up -d test-postgres",
     "pretest:debug": "yarn pretest",
     "start": "nest start",
     "start:debug": "nest start --debug --watch",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "test": "jest",
-    "test:cov": "yarn test --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "yarn test --config ./test/jest-e2e.json",
-    "test:watch": "yarn test --watch"
+    "test:all": "yarn test --config ./test/configs/jest-all.js",
+    "test:clear-cache": "jest --clearCache",
+    "test:cov": "yarn test --coverage --config ./test/configs/jest-all.js",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --config ./test/configs/jest-debug.js --runInBand",
+    "test:e2e": "yarn test --config ./test/configs/jest-e2e.js",
+    "test:unit": "yarn test --config ./test/configs/jest-unit.js"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
@@ -53,6 +55,7 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-spellcheck": "^0.0.19",
     "jest": "^27.2.5",
+    "jest-extended": "^2.0.0",
     "source-map-support": "^0.5.20",
     "supertest": "^6.1.3",
     "ts-jest": "^27.0.3",
@@ -60,22 +63,5 @@
     "ts-node": "^10.0.0",
     "tsconfig-paths": "^3.10.1",
     "typescript": "^4.3.5"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }
