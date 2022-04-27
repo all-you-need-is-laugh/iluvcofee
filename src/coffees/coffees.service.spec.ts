@@ -1,7 +1,10 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { getConnectionToken, TypeOrmModule } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { assertObject } from '../../test/utils/assertions';
 import { checkError } from '../../test/utils/checkError';
+import { maxNumber } from '../../test/utils/maxNumber';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
@@ -21,25 +24,33 @@ const updateCoffeeDto: UpdateCoffeeDto = {
 
 describe('CoffeeService', () => {
   let coffeeService: CoffeesService;
+  let dataSource: DataSource;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      // imports: [ CommonModule ],
-      providers: [ CoffeesService ],
+      imports: [
+        TypeOrmModule.forRoot({
+          autoLoadEntities: true,
+          database: 'iluvcofee',
+          host: 'localhost',
+          password: 'postgres',
+          port: 5442,
+          synchronize: process.env.NODE_ENV !== 'production',
+          type: 'postgres',
+          username: 'postgres',
+        }),
+        TypeOrmModule.forFeature([ Coffee ])
+      ],
+      providers: [ CoffeesService, ],
     }).compile();
 
     coffeeService = moduleRef.get<CoffeesService>(CoffeesService);
-    // redis = moduleRef.get<Redis>(getRedisToken('default'));
 
-    // await redis.del(CoffeesService.COFFEES_SET_NAME);
-  });
-
-  afterEach(async () => {
-    // await redis.del(CoffeesService.COFFEES_SET_NAME);
+    dataSource = moduleRef.get<DataSource>(getConnectionToken());
   });
 
   afterAll(async () => {
-    // await redis.quit();
+    await dataSource.destroy();
   });
 
   describe('create', () => {
@@ -62,7 +73,13 @@ describe('CoffeeService', () => {
       expect(foundCoffee).toEqual({ ...newCoffeeResult, flavors: [ ...newCoffeeResult.flavors ] });
     });
 
-    it('should throw error for absent ID', async () => {
+    it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
+      const absentId = maxNumber(4, true);
+
+      await checkError(() => coffeeService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
+    });
+
+    it('should throw error for absent ID (out of range)', async () => {
       const absentId = Number.MAX_SAFE_INTEGER;
 
       await checkError(() => coffeeService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
@@ -147,13 +164,23 @@ describe('CoffeeService', () => {
     });
 
     describe('failure', () => {
-      it('should throw error for absent ID', async () => {
+      it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
+        const absentId = maxNumber(4, true);
+
+        await checkError(
+          () => coffeeService.update(absentId, updateCoffeeDto),
+            `Coffee #${absentId} not found`,
+            NotFoundException
+        );
+      });
+
+      it('should throw error for absent ID (out of range)', async () => {
         const absentId = Number.MAX_SAFE_INTEGER;
 
         await checkError(
           () => coffeeService.update(absentId, updateCoffeeDto),
-          `Coffee #${absentId} not found`,
-          NotFoundException
+            `Coffee #${absentId} not found`,
+            NotFoundException
         );
       });
     });
@@ -166,7 +193,13 @@ describe('CoffeeService', () => {
       expect(await coffeeService.remove(newCoffeeResult.id)).toBe(true);
     });
 
-    it('should return `false` for absent ID', async () => {
+    it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
+      const absentId = maxNumber(4, true);
+
+      expect(await coffeeService.remove(absentId)).toBe(false);
+    });
+
+    it('should throw error for absent ID (out of range)', async () => {
       const absentId = Number.MAX_SAFE_INTEGER;
 
       expect(await coffeeService.remove(absentId)).toBe(false);

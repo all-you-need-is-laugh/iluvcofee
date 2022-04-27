@@ -86,6 +86,7 @@ module.exports = {
         'localhost',
         'nullable',
         'orm',
+        'postgres',
         'promisify',
         'redis',
         'superagent',

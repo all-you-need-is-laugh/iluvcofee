@@ -1,33 +1,32 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { isPostgresError } from '../shared/utils/isPostgresError';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { Coffee } from './entities/coffee.entity';
 
 @Injectable()
 export class CoffeesService {
-  private coffees: Coffee[] = [
-    {
-      id: 1,
-      name: 'Shipwreck Roast',
-      brand: 'Buddy Brew',
-      flavors: [ 'chocolate', 'vanilla' ],
-    },
-    {
-      id: 2,
-      name: 'Rota Roast',
-      brand: 'Psycho Brew',
-      flavors: [ 'opaque' ],
-    },
-  ];
-
-  private lastId = this.coffees.length;
+  constructor (
+    @InjectRepository(Coffee)
+    private readonly coffeeRepository: Repository<Coffee>
+  ) {}
 
   async findAll (): Promise<Coffee[]> {
-    return this.coffees;
+    return this.coffeeRepository.find();
   }
 
   async findOne (id: number): Promise<Coffee> {
-    const coffee = this.coffees.find((item) => item.id === id);
+    let coffee;
+
+    try {
+      coffee = await this.coffeeRepository.findOneBy({ id });
+    } catch (error) {
+      if (!isPostgresError(error) || error.code !== '22003') {
+        throw error;
+      }
+    }
 
     if (!coffee) {
       throw new NotFoundException(`Coffee #${id} not found`);
@@ -37,31 +36,47 @@ export class CoffeesService {
   }
 
   async create (createCoffeeDto: CreateCoffeeDto): Promise<Coffee> {
-    const newCoffee = Object.assign(new Coffee(), { id: ++this.lastId }, createCoffeeDto);
+    const coffee = await this.coffeeRepository.create(createCoffeeDto);
 
-    this.coffees.push(newCoffee);
-
-    return newCoffee;
+    return this.coffeeRepository.save(coffee);
   }
 
   async update (id: number, updateCoffeeDto: UpdateCoffeeDto): Promise<Coffee> {
-    const index = this.coffees.findIndex((item) => item.id === id);
-    const existingCoffee = this.coffees[index];
-    if (index === -1 || existingCoffee === undefined) {
+    let coffee;
+
+    try {
+      coffee = await this.coffeeRepository.preload({
+        id,
+        ...updateCoffeeDto
+      });
+    } catch (error) {
+      if (!isPostgresError(error) || error.code !== '22003') {
+        throw error;
+      }
+    }
+
+    if (!coffee) {
       throw new NotFoundException(`Coffee #${id} not found`);
     }
-    const updatedCoffee = Object.assign(new Coffee(), existingCoffee, updateCoffeeDto);
-    this.coffees[index] = updatedCoffee;
-    return updatedCoffee;
+
+    return this.coffeeRepository.save(coffee);
   }
 
   async remove (id: number): Promise<boolean> {
-    const index = this.coffees.findIndex((item) => item.id === id);
-    if (index >= 0) {
-      this.coffees.splice(index, 1);
-      return true;
+    let coffee;
+
+    try {
+      coffee = await this.findOne(id);
+    } catch (error) {
+      if (!(error instanceof NotFoundException)) {
+        throw error;
+      }
     }
 
-    return false;
+    if (!coffee) return false;
+
+    await this.coffeeRepository.remove(coffee);
+
+    return true;
   }
 }
