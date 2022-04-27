@@ -10,10 +10,8 @@
     "forceConsistentCasingInFileNames": false,
     "incremental": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
     "module": "commonjs",
     "moduleResolution": "node",
-    "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,
@@ -24,7 +22,6 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "strictNullChecks": true,
     "strictPropertyInitialization": false,
     "target": "es2017",
     "useUnknownInCatchVariables": true
