@@ -11,17 +11,17 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "prebuild": "rimraf dist",
     "pretest": "yarn test:clear-cache",
+    "start": "nest start",
     "start:debug": "nest start --debug --watch",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
-    "start": "nest start",
+    "test": "jest",
     "test:all": "yarn test --config ./test/configs/jest-all.js",
     "test:clear-cache": "jest --clearCache",
     "test:cov": "yarn test --coverage --config ./test/configs/jest-all.js",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --config ./test/configs/jest-debug.js --runInBand",
     "test:e2e": "yarn test --config ./test/configs/jest-e2e.js",
-    "test:unit": "yarn test --config ./test/configs/jest-unit.js",
-    "test": "jest"
+    "test:unit": "yarn test --config ./test/configs/jest-unit.js"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
