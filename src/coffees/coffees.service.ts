@@ -40,7 +40,7 @@ export class CoffeesService {
   }
 
   async update (id: number, updateCoffeeDto: UpdateCoffeeDto): Promise<CoffeePublic> {
-    let coffee;
+    let coffee: Coffee | undefined;
 
     const { flavors: updateFlavors, ...updateRest } = updateCoffeeDto;
     const preloadDto: Partial<Coffee> = { id, ...updateRest };
@@ -67,7 +67,7 @@ export class CoffeesService {
   }
 
   async remove (id: number): Promise<boolean> {
-    let coffee;
+    let coffee: Coffee | null = null;
 
     try {
       coffee = await this.findOneCoffee(id);
@@ -85,7 +85,7 @@ export class CoffeesService {
   }
 
   private async findOneCoffee (id: number): Promise<Coffee> {
-    let coffee;
+    let coffee: Coffee | null = null;
 
     try {
       coffee = await this.coffeeRepository.findOneBy({ id });
