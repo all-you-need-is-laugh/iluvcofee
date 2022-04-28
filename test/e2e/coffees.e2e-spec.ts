@@ -8,7 +8,7 @@ import { CoffeesModule } from '../../src/coffees/coffees.module';
 import { CreateCoffeeDto } from '../../src/coffees/dto/create-coffee.dto';
 import { UpdateCoffeeDto } from '../../src/coffees/dto/update-coffee.dto';
 import setupApp from '../../src/setupApp';
-import { assertObject } from '../utils/assertions';
+import { assertArray, assertObject, assertObjectShape } from '../utils/assertions';
 import { SafeResponse } from '../utils/SafeResponse';
 import { statusChecker } from '../utils/statusChecker';
 
@@ -154,7 +154,15 @@ describe('CoffeesController (e2e)', () => {
             .send(updateCoffeeDto)
             .expect(statusChecker(200));
 
-          assertObject(updatedCoffeeResult, { ...newCoffeeResult, ...updateCoffeeDto });
+          assertObjectShape(updatedCoffeeResult, newCoffeeResult);
+          assertArray(updatedCoffeeResult.flavors);
+          updatedCoffeeResult.flavors.sort();
+
+          const expected = { ...newCoffeeResult, ...updateCoffeeDto };
+
+          expected.flavors = expected.flavors.slice().sort();
+
+          assertObject(updatedCoffeeResult, expected);
         });
 
       for (const key of Object.keys(updateCoffeeBasicDto)) {
@@ -180,7 +188,15 @@ describe('CoffeesController (e2e)', () => {
           const { body: foundCoffeeResult }: SafeResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
             .expect(statusChecker(200));
 
-          assertObject(foundCoffeeResult, { ...newCoffeeResult, ...updateCoffeeDto });
+          assertObjectShape(foundCoffeeResult, newCoffeeResult);
+          assertArray(foundCoffeeResult.flavors);
+          foundCoffeeResult.flavors.sort();
+
+          const expected = { ...newCoffeeResult, ...updateCoffeeDto };
+
+          expected.flavors = expected.flavors.slice().sort();
+
+          assertObject(foundCoffeeResult, expected);
         });
 
       for (const key of Object.keys(updateCoffeeBasicDto)) {
