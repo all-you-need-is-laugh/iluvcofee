@@ -5,6 +5,7 @@ module.exports = (testRegex, enableCoverage) => ({
       '!**/.*',
       '!.*/**/*',
       '!coverage/**',
+      '!dist/**',
       '!test/(configs|utils)/*'
     ],
   } : {}),

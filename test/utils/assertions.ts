@@ -6,3 +6,8 @@ export function assertObject <T extends object>
     expect(arg).toMatchObject(template);
   }
 }
+
+export function assertObjectShape <K extends (string | number)>
+(arg: unknown, keys: K[]): asserts arg is Record<K, unknown> {
+  expect(arg).toContainAllKeys(keys);
+}

@@ -8,7 +8,9 @@ import { maxNumber } from '../../test/utils/maxNumber';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
+import { CoffeePublic } from './entities/coffee-public.entity';
 import { Coffee } from './entities/coffee.entity';
+import { Flavor } from './entities/flavor.enitity';
 
 const createCoffeeDto: CreateCoffeeDto = {
   name: 'New Coffee Name',
@@ -39,7 +41,7 @@ describe('CoffeeService', () => {
           type: 'postgres',
           username: 'postgres',
         }),
-        TypeOrmModule.forFeature([ Coffee ])
+        TypeOrmModule.forFeature([ Coffee, Flavor ])
       ],
       providers: [ CoffeesService, ],
     }).compile();
@@ -55,22 +57,20 @@ describe('CoffeeService', () => {
 
   describe('create', () => {
     it('should create coffee and return its full entity as result', async () => {
-      const newCoffeeResult: Coffee = await coffeeService.create(createCoffeeDto);
+      const newCoffee: CoffeePublic = await coffeeService.create(createCoffeeDto);
 
-      expect(newCoffeeResult).toBeInstanceOf(Coffee);
-      expect(newCoffeeResult).toMatchObject({ ...createCoffeeDto, flavors: [ ...createCoffeeDto.flavors ] });
-      expect(newCoffeeResult.id).toBeGreaterThanOrEqual(0);
+      expect(newCoffee).toMatchObject({ ...createCoffeeDto, flavors: [ ...createCoffeeDto.flavors ] });
+      expect(newCoffee.id).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('findOne', () => {
     it('should return one coffee by ID', async () => {
-      const newCoffeeResult: Coffee = await coffeeService.create(createCoffeeDto);
+      const newCoffee: CoffeePublic = await coffeeService.create(createCoffeeDto);
 
-      const foundCoffee: Coffee = await coffeeService.findOne(newCoffeeResult.id);
+      const foundCoffee: CoffeePublic = await coffeeService.findOne(newCoffee.id);
 
-      expect(foundCoffee).toBeInstanceOf(Coffee);
-      expect(foundCoffee).toEqual({ ...newCoffeeResult, flavors: [ ...newCoffeeResult.flavors ] });
+      expect(foundCoffee).toMatchObject({ ...newCoffee, flavors: [ ...newCoffee.flavors ] });
     });
 
     it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
@@ -98,7 +98,7 @@ describe('CoffeeService', () => {
         brand: 'Second Coffee Brand',
         flavors: [ 'second', 'coffee' ]
       };
-      const [ firstCreated, secondCreated ]: Coffee[] = await Promise.all([
+      const [ firstCreated, secondCreated ]: CoffeePublic[] = await Promise.all([
         coffeeService.create(firstCoffeeDto),
         coffeeService.create(secondCoffeeDto)
       ]);
@@ -106,16 +106,14 @@ describe('CoffeeService', () => {
       assertObject(firstCreated, firstCoffeeDto);
       assertObject(secondCreated, secondCoffeeDto);
 
-      const foundCoffees: Coffee[] = await coffeeService.findAll();
+      const foundCoffees: CoffeePublic[] = await coffeeService.findAll();
 
       const foundFirstCoffee = foundCoffees.find(c => c.id === firstCreated.id);
       const foundSecondCoffee = foundCoffees.find(c => c.id === secondCreated.id);
 
-      expect(foundFirstCoffee).toBeInstanceOf(Coffee);
-      expect(foundFirstCoffee).toEqual({ ...firstCreated, flavors: [ ...firstCreated.flavors ] });
+      expect(foundFirstCoffee).toMatchObject({ ...firstCreated, flavors: [ ...firstCreated.flavors ] });
 
-      expect(foundSecondCoffee).toBeInstanceOf(Coffee);
-      expect(foundSecondCoffee).toEqual({ ...secondCreated, flavors: [ ...secondCreated.flavors ] });
+      expect(foundSecondCoffee).toMatchObject({ ...secondCreated, flavors: [ ...secondCreated.flavors ] });
     });
   });
 
@@ -124,16 +122,17 @@ describe('CoffeeService', () => {
     describe('and result', () => {
       const dynamicIt = (updateField: string, updateCoffeePartialDto: Partial<UpdateCoffeeDto>) =>
         it(`should be full updated entity (updating ${updateField})`, async () => {
-          const newCoffeeResult: Coffee = await coffeeService.create(createCoffeeDto);
-          const updatedCoffeeResult: Coffee = await coffeeService.update(newCoffeeResult.id, updateCoffeePartialDto);
-          const expected: Coffee = {
-            ...newCoffeeResult,
-            flavors: [ ...newCoffeeResult.flavors ],
-            ...updateCoffeePartialDto
+          const newCoffee: CoffeePublic = await coffeeService.create(createCoffeeDto);
+          const updatedCoffee: CoffeePublic = await coffeeService.update(newCoffee.id, updateCoffeePartialDto);
+          const expected: CoffeePublic = {
+            ...newCoffee,
+            ...updateCoffeePartialDto,
+            flavors: [ ...(updateCoffeePartialDto.flavors || newCoffee.flavors) ].sort(),
           };
 
-          expect(updatedCoffeeResult).toBeInstanceOf(Coffee);
-          expect(updatedCoffeeResult).toEqual(expected);
+          updatedCoffee.flavors.sort();
+
+          expect(updatedCoffee).toMatchObject(expected);
         });
 
       for (const key of Object.keys(updateCoffeeDto)) {
@@ -144,16 +143,21 @@ describe('CoffeeService', () => {
     });
 
     describe('and changed value', () => {
-      const dynamicIt = (updateField: string, updateCoffeeDto: Partial<UpdateCoffeeDto>) =>
+      const dynamicIt = (updateField: string, updateCoffeePartialDto: Partial<UpdateCoffeeDto>) =>
         it(`should be full updated entity (updating ${updateField})`, async () => {
-          const newCoffeeResult: Coffee = await coffeeService.create(createCoffeeDto);
-          await coffeeService.update(newCoffeeResult.id, updateCoffeeDto);
-          const foundCoffeeResult: Coffee = await coffeeService.findOne(newCoffeeResult.id);
+          const newCoffee: CoffeePublic = await coffeeService.create(createCoffeeDto);
+          await coffeeService.update(newCoffee.id, updateCoffeePartialDto);
+          const foundCoffee: CoffeePublic = await coffeeService.findOne(newCoffee.id);
 
-          const expected: Coffee = { ...newCoffeeResult, flavors: [ ...newCoffeeResult.flavors ], ...updateCoffeeDto };
+          const expected: CoffeePublic = {
+            ...newCoffee,
+            ...updateCoffeePartialDto,
+            flavors: [ ...(updateCoffeePartialDto.flavors || newCoffee.flavors) ].sort(),
+          };
 
-          expect(foundCoffeeResult).toBeInstanceOf(Coffee);
-          expect(foundCoffeeResult).toEqual(expected);
+          foundCoffee.flavors.sort();
+
+          expect(foundCoffee).toMatchObject(expected);
         });
 
       for (const key of Object.keys(updateCoffeeDto)) {
@@ -188,9 +192,9 @@ describe('CoffeeService', () => {
 
   describe('remove', () => {
     it('should return `true` after deletion', async () => {
-      const newCoffeeResult: Coffee = await coffeeService.create(createCoffeeDto);
+      const newCoffee: CoffeePublic = await coffeeService.create(createCoffeeDto);
 
-      expect(await coffeeService.remove(newCoffeeResult.id)).toBe(true);
+      expect(await coffeeService.remove(newCoffee.id)).toBe(true);
     });
 
     it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
