@@ -16,8 +16,6 @@ services:
       - default
 
   pgadmin:
-    links:
-      - postgres:postgres
     container_name: pgadmin
     image: dpage/pgadmin4:latest
     ports:
@@ -27,8 +25,6 @@ services:
     environment:
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
       PGADMIN_CONFIG_SERVER_MODE: "False"
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     networks:
       - default
     depends_on:
@@ -39,8 +35,6 @@ services:
     image: postgres:latest
     ports:
       - "5442:5432"
-    volumes:
-      - test-postgres_data_volume:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -49,8 +43,6 @@ services:
       - test
 
   test-pgadmin:
-    links:
-      - postgres:test-postgres
     container_name: test-pgadmin
     image: dpage/pgadmin4:latest
     ports:
@@ -60,8 +52,6 @@ services:
     environment:
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
       PGADMIN_CONFIG_SERVER_MODE: "False"
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     networks:
       - test
     depends_on:
@@ -76,5 +66,4 @@ networks:
 volumes:
   postgres_data_volume:
   pgadmin_data_volume:
-  test-postgres_data_volume:
   test-pgadmin_data_volume:
