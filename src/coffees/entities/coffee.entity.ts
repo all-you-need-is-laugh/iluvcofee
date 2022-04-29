@@ -15,4 +15,7 @@ export class Coffee {
   @JoinTable({ name: 'Coffees_Flavors', joinColumn: { name: 'coffeeId' }, inverseJoinColumn: { name: 'flavorId' } })
   @ManyToMany(_type => Flavor, flavor => flavor.coffees, { cascade: true, eager: true })
   flavors: Flavor[];
+
+  @Column({ default: 0 })
+  recommendations: number;
 }

@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { isPostgresError } from '../common/utils/isPostgresError';
+import { Event } from '../events/entities/event.entity';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { CoffeePublic } from './entities/coffee-public.entity';
@@ -15,7 +16,9 @@ export class CoffeesService {
     @InjectRepository(Coffee)
     private readonly coffeeRepository: Repository<Coffee>,
     @InjectRepository(Flavor)
-    private readonly flavorRepository: Repository<Flavor>
+    private readonly flavorRepository: Repository<Flavor>,
+    @InjectConnection()
+    private readonly dataSource: DataSource
   ) {}
 
   async findAll (paginationQuery?: PaginationQueryDto): Promise<CoffeePublic[]> {
@@ -69,6 +72,47 @@ export class CoffeesService {
     await this.coffeeRepository.save(coffee);
 
     return this.findOne(id);
+  }
+
+  // TODO: add tests for this method
+  async recommendCoffee (id: number): Promise<boolean> {
+    const coffee = await this.coffeeRepository.preload({ id });
+
+    if (!coffee) {
+      throw new NotFoundException(`Coffee #${id} not found`);
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    // TODO: Extract to some kind "perform event" method
+    try {
+      coffee.recommendations++;
+
+      const recommendationEvent = new Event();
+      // TODO: convert to enum
+      recommendationEvent.name = 'recommend_coffee';
+      // TODO: convert to enum
+      recommendationEvent.type = 'coffee';
+      recommendationEvent.payload = { coffeeId: id };
+
+      await queryRunner.manager.save(coffee);
+      await queryRunner.manager.save(recommendationEvent);
+
+      await queryRunner.commitTransaction();
+
+      return true;
+    } catch (err: unknown) {
+      // TODO: replace with logger
+      console.log('### > CoffeesService > recommendCoffee > err', err);
+      await queryRunner.rollbackTransaction();
+
+      return false;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async remove (id: number): Promise<boolean> {

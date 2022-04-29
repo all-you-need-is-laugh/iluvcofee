@@ -94,6 +94,7 @@ module.exports = {
       'skipWords': [
         'charset',
         'dto',
+        'enum',
         'iluvcofee',
         'interceptable',
         'keyof',

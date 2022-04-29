@@ -44,4 +44,9 @@ export class CoffeesController {
   async remove (@Param('id') id: number): Promise<boolean> {
     return this.coffeeService.remove(id);
   }
+
+  @Post(':id/recommend')
+  async recommend (@Param('id') id: number): Promise<boolean> {
+    return this.coffeeService.recommendCoffee(id);
+  }
 }
