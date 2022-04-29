@@ -6,8 +6,10 @@ import {
   Header,
   Param,
   Patch,
-  Post
+  Post,
+  Query
 } from '@nestjs/common';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
@@ -18,8 +20,8 @@ export class CoffeesController {
   constructor (private readonly coffeeService: CoffeesService) {}
 
   @Get()
-  async findAll (): Promise<CoffeePublic[]> {
-    return this.coffeeService.findAll();
+  async findAll (@Query() paginationQuery: PaginationQueryDto): Promise<CoffeePublic[]> {
+    return this.coffeeService.findAll(paginationQuery);
   }
 
   @Get(':id')

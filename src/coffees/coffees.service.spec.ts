@@ -115,6 +115,11 @@ describe('CoffeeService', () => {
 
       expect(foundSecondCoffee).toMatchObject({ ...secondCreated, flavors: [ ...secondCreated.flavors ] });
     });
+
+    it.todo('should return not more items than specified in `limit` pagination parameter');
+
+    // Implement it after any parent entity for Coffee will be added
+    it.todo('should return different items according to `offset` pagination parameter');
   });
 
   describe('update', () => {

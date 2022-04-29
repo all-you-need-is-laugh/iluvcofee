@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { isPostgresError } from '../common/utils/isPostgresError';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
@@ -17,8 +18,12 @@ export class CoffeesService {
     private readonly flavorRepository: Repository<Flavor>
   ) {}
 
-  async findAll (): Promise<CoffeePublic[]> {
-    const coffees = await this.coffeeRepository.find();
+  async findAll (paginationQuery?: PaginationQueryDto): Promise<CoffeePublic[]> {
+    const { offset = 0, limit = Number.MAX_SAFE_INTEGER } = paginationQuery || {};
+    const coffees = await this.coffeeRepository.find({
+      skip: offset,
+      take: limit
+    });
 
     return coffees.map(coffee => this.formatCoffeeToPublic(coffee));
   }
