@@ -49,22 +49,17 @@ jobs:
         with:
           node-version: '14.19.0'
 
-      ##########################
-      # Install eslint plugins #
-      ##########################
-      - name: Install eslint plugins
-        # run: >-
-        #   npm install
-        #   eslint
-        #   typescript
-        #   @typescript-eslint/eslint-plugin
-        #   @typescript-eslint/parser
-        #   eslint-plugin-import
-        #   eslint-plugin-spellcheck
-        #   eslint-import-resolver-typescript
-        run:
-          - npm -g install yarn@1.22.18
-          - yarn install --freeze-lock
+      ################
+      # Install yarn #
+      ################
+      - name: Install yarn
+        run: npm -g install yarn@1.22.18
+
+      ############################
+      # Install all dependencies #
+      ############################
+      - name: Install all dependencies
+        run: yarn install --freeze-lock
 
       ################################
       # Run ESLint against code base #
