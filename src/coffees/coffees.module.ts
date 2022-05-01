@@ -4,7 +4,7 @@ import { Event } from '../events/entities/event.entity';
 import { CoffeesController } from './coffees.controller';
 import { CoffeesService } from './coffees.service';
 import { Coffee } from './entities/coffee.entity';
-import { Flavor } from './entities/flavor.enitity';
+import { Flavor } from './entities/flavor.entity';
 
 @Module({
   imports: [ TypeOrmModule.forFeature([ Coffee, Flavor, Event ]) ],
