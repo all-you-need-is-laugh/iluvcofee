@@ -1,0 +1,68 @@
+---
+###########################
+###########################
+## Linter GitHub Actions ##
+###########################
+###########################
+name: Lint Code Base
+
+#
+# Documentation:
+# https://help.github.com/en/articles/workflow-syntax-for-github-actions
+#
+
+#############################
+# Start the job on all push #
+#############################
+on:
+  push:
+    branches: [main]
+    # Remove the line above to run when pushing to main
+  pull_request:
+    branches: [main]
+
+###############
+# Set the Job #
+###############
+jobs:
+  build:
+    # Name the Job
+    name: Lint Code Base
+    # Set the agent to run on
+    runs-on: ubuntu-latest
+
+    ##################
+    # Load all steps #
+    ##################
+    steps:
+      ##########################
+      # Checkout the code base #
+      ##########################
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      ##########################
+      # Setup Node.js v14.19.0 #
+      ##########################
+      - name: Use Node.js 14.19.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.19.0'
+
+      ################
+      # Install yarn #
+      ################
+      - name: Install yarn
+        run: npm -g install yarn@1.22.18
+
+      ############################
+      # Install all dependencies #
+      ############################
+      - name: Install all dependencies
+        run: yarn install --freeze-lock
+
+      ################################
+      # Run ESLint against code base #
+      ################################
+      - name: Lint Code Base
+        run: yarn lint
