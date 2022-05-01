@@ -17,36 +17,36 @@ import { CoffeePublic } from './entities/coffee-public.entity';
 
 @Controller('coffees')
 export class CoffeesController {
-  constructor (private readonly coffeeService: CoffeesService) {}
+  constructor (private readonly coffeesService: CoffeesService) {}
 
   @Get()
   async findAll (@Query() paginationQuery: PaginationQueryDto): Promise<CoffeePublic[]> {
-    return this.coffeeService.findAll(paginationQuery);
+    return this.coffeesService.findAll(paginationQuery);
   }
 
   @Get(':id')
   async findOne (@Param('id') id: number): Promise<CoffeePublic> {
-    return this.coffeeService.findOne(id);
+    return this.coffeesService.findOne(id);
   }
 
   @Post()
   async create (@Body() createCoffeeDto: CreateCoffeeDto): Promise<CoffeePublic> {
-    return this.coffeeService.create(createCoffeeDto);
+    return this.coffeesService.create(createCoffeeDto);
   }
 
   @Patch(':id')
   async update (@Param('id') id: number, @Body() updateCoffeeDto: UpdateCoffeeDto): Promise<CoffeePublic> {
-    return this.coffeeService.update(id, updateCoffeeDto);
+    return this.coffeesService.update(id, updateCoffeeDto);
   }
 
   @Delete(':id')
   @Header('content-type', 'application/json; charset=utf-8')
   async remove (@Param('id') id: number): Promise<boolean> {
-    return this.coffeeService.remove(id);
+    return this.coffeesService.remove(id);
   }
 
   @Post(':id/recommend')
   async recommend (@Param('id') id: number): Promise<boolean> {
-    return this.coffeeService.recommendCoffee(id);
+    return this.coffeesService.recommendCoffee(id);
   }
 }
