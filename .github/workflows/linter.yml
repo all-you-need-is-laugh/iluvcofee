@@ -1,0 +1,73 @@
+---
+###########################
+###########################
+## Linter GitHub Actions ##
+###########################
+###########################
+name: Lint Code Base
+
+#
+# Documentation:
+# https://help.github.com/en/articles/workflow-syntax-for-github-actions
+#
+
+#############################
+# Start the job on all push #
+#############################
+on:
+  push:
+    branches: [master]
+    # Remove the line above to run when pushing to master
+  pull_request:
+    branches: [master]
+
+###############
+# Set the Job #
+###############
+jobs:
+  build:
+    # Name the Job
+    name: Lint Code Base
+    # Set the agent to run on
+    runs-on: ubuntu-latest
+
+    ##################
+    # Load all steps #
+    ##################
+    steps:
+      ##########################
+      # Checkout the code base #
+      ##########################
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      ##########################
+      # Setup Node.js v14.19.0 #
+      ##########################
+      - name: Use Node.js 14.19.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.19.0'
+
+      ##########################
+      # Install eslint plugins #
+      ##########################
+      - name: Install eslint plugins
+        # run: >-
+        #   npm install
+        #   eslint
+        #   typescript
+        #   @typescript-eslint/eslint-plugin
+        #   @typescript-eslint/parser
+        #   eslint-plugin-import
+        #   eslint-plugin-spellcheck
+        #   eslint-import-resolver-typescript
+        run:
+          - npm -g install yarn@1.22.18
+          - yarn install --freeze-lock
+
+      ################################
+      # Run ESLint against code base #
+      ################################
+      - name: Lint Code Base
+        run: yarn lint
