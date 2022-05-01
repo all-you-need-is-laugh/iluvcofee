@@ -11,7 +11,7 @@ import { CoffeesModule } from './coffees/coffees.module';
       host: 'localhost',
       password: 'postgres',
       port: 5432,
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: false, // use migrations for schema synchronization
       type: 'postgres',
       username: 'postgres',
     })

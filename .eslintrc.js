@@ -11,6 +11,13 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-var-requires': 'off'
       }
+    },
+    {
+      files: ['src/typeorm/migrations/*'],
+      rules: {
+        'max-len': 'off',
+        'spellcheck/spell-checker': 'off'
+      }
     }
   ],
   parser: '@typescript-eslint/parser',
@@ -108,6 +115,7 @@ module.exports = {
         'superagent',
         'supertest',
         'ttl',
+        'typeorm',
         'unknownimize',
         'unref',
         'utf',
