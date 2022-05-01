@@ -11,6 +11,13 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-var-requires': 'off'
       }
+    },
+    {
+      files: ['src/typeorm/migrations/*'],
+      rules: {
+        'max-len': 'off',
+        'spellcheck/spell-checker': 'off'
+      }
     }
   ],
   parser: '@typescript-eslint/parser',
@@ -26,13 +33,20 @@ module.exports = {
     'array-element-newline': ['warn', 'consistent'],
     'arrow-spacing': 'warn',
     'computed-property-spacing': ['error', 'never'],
+    '@typescript-eslint/consistent-type-assertions': ['warn', { assertionStyle: 'as', objectLiteralTypeAssertions: 'never' }],
+    '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
+    'default-param-last': 'off',
+    '@typescript-eslint/default-param-last': ['error'],
+    'dot-notation': 'off',
+    '@typescript-eslint/dot-notation': ['error'],
     'eol-last': ['warn', 'always'],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'error',
     'import/named': 'error',
     'import/no-unresolved': 'error',
     'indent': 'off',
-    '@typescript-eslint/indent': ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchStatement'] }],
+    '@typescript-eslint/indent': ['error', 2, { ignoredNodes: ['TemplateLiteral', 'SwitchStatement', 'Identifier'] }],
+    '@typescript-eslint/interface-name-prefix': 'off',
     'key-spacing': 'warn',
     'keyword-spacing': 'warn',
     'max-len': ['warn', { 'code': 120 }],
@@ -47,14 +61,23 @@ module.exports = {
         }
       }
     ],
+    '@typescript-eslint/no-inferrable-types': 'warn',
     '@typescript-eslint/no-explicit-any': 'error',
     'no-multiple-empty-lines': ['warn', { max: 1, maxBOF: 0, maxEOF: 1}],
     'no-restricted-imports': 'off',
+    'no-restricted-syntax': ['error', {
+      selector: 'VariableDeclaration[kind=let] > VariableDeclarator[init.type="Literal"][init.raw="null"] > Identifier.id:not([typeAnnotation]), VariableDeclaration[kind=let] > VariableDeclarator[init=null] > Identifier.id:not([typeAnnotation]), VariableDeclaration[kind=let] > VariableDeclarator[init.type="Identifier"][init.name="undefined"] > Identifier.id:not([typeAnnotation])',
+      message: 'Declared variables must have type or be assigned with value (excluding `null` and `undefined`)'
+    }],
     'no-undef': 'error',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '_.*' }],
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': ['error', { typedefs: false }],
     'object-curly-spacing': ['warn', 'always'],
     'object-property-newline': ['warn', { allowAllPropertiesOnSameLine: true} ],
+    '@typescript-eslint/prefer-for-of': 'warn',
+    '@typescript-eslint/no-var-requires': 'warn',
     'quotes': ['warn', 'single', { 'avoidEscape': true }],
     'semi': ['error', 'always'],
     'sort-keys': ['error', 'asc', { 'caseSensitive': true, 'minKeys': 6, 'natural': true }],
@@ -78,15 +101,21 @@ module.exports = {
       'skipWords': [
         'charset',
         'dto',
+        'enum',
+        'iluvcofee',
         'interceptable',
         'keyof',
         'len',
         'localhost',
+        'nullable',
+        'orm',
+        'postgres',
         'promisify',
         'redis',
         'superagent',
         'supertest',
         'ttl',
+        'typeorm',
         'unknownimize',
         'unref',
         'utf',

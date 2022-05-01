@@ -1,13 +1,14 @@
 /* eslint-disable max-len */
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import 'jest-extended';
 import supertest from 'supertest';
 import { CoffeesModule } from '../../src/coffees/coffees.module';
 import { CreateCoffeeDto } from '../../src/coffees/dto/create-coffee.dto';
 import { UpdateCoffeeDto } from '../../src/coffees/dto/update-coffee.dto';
 import setupApp from '../../src/setupApp';
-import { assertObject } from '../utils/assertions';
+import { assertArray, assertObject, assertObjectShape } from '../utils/assertions';
 import { SafeResponse } from '../utils/SafeResponse';
 import { statusChecker } from '../utils/statusChecker';
 
@@ -28,7 +29,19 @@ describe('CoffeesController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [ CoffeesModule ],
+      imports: [
+        CoffeesModule,
+        TypeOrmModule.forRoot({
+          autoLoadEntities: true,
+          database: 'iluvcofee',
+          host: 'localhost',
+          password: 'postgres',
+          port: 5442,
+          synchronize: process.env.NODE_ENV !== 'production',
+          type: 'postgres',
+          username: 'postgres',
+        })
+      ],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -85,7 +98,7 @@ describe('CoffeesController (e2e)', () => {
 
     describe('success', () => {
 
-      it('should return all coffees by ID', async () => {
+      it('should return all coffees', async () => {
         const firstCoffeeDto: CreateCoffeeDto = {
           name: 'First Coffee Name',
           brand: 'First Coffee Brand',
@@ -111,17 +124,58 @@ describe('CoffeesController (e2e)', () => {
         const { body: foundCoffees }: SafeResponse = await server.get('/coffees')
           .expect(statusChecker(200));
 
-        if (!Array.isArray(foundCoffees)) {
-          throw new Error(
-            `Result of [GET] '/coffees' request must be array, but received: ${JSON.stringify(foundCoffees)}`
-          );
-        }
+        assertArray(foundCoffees);
 
-        const foundFirstCoffee = foundCoffees.find(c => c.id === firstCreated.id);
-        const foundSecondCoffee = foundCoffees.find(c => c.id === secondCreated.id);
+        const foundFirstCoffee = foundCoffees.find(c => (assertObject(c), c.id === firstCreated.id));
+        const foundSecondCoffee = foundCoffees.find(c => (assertObject(c), c.id === secondCreated.id));
 
         expect(foundFirstCoffee).toEqual(firstCreated);
         expect(foundSecondCoffee).toEqual(secondCreated);
+      });
+
+      it('should return all coffees according to pagination parameters', async () => {
+        const PAGE_SIZE = 5;
+        const NUMBER_OF_ITEMS = PAGE_SIZE * 2;
+
+        await Promise.all(
+          Array.from({ length: NUMBER_OF_ITEMS }).map((_, index) => {
+            const coffeeDto: CreateCoffeeDto = {
+              name: `Coffee Name #${index}`,
+              brand: `Coffee Brand #${index}`,
+              flavors: [ `${index}-nth`, 'coffee' ]
+            };
+
+            return server.post('/coffees')
+              .send(coffeeDto)
+              .expect(statusChecker(201));
+          })
+        );
+
+        // Database can (and most likely) has another items, so don't expect to obtain only those items we just created!
+
+        const { body: allCoffees }: SafeResponse = await server.get('/coffees')
+          .expect(statusChecker(200));
+
+        assertArray(allCoffees);
+
+        expect(allCoffees.length).toBeGreaterThanOrEqual(10);
+
+        const { body: firstPage }: SafeResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
+          .expect(statusChecker(200));
+
+        assertArray(firstPage);
+
+        expect(firstPage.length).toBe(5);
+
+        const { body: secondPage }: SafeResponse = await server.get(`/coffees?limit=${PAGE_SIZE}&offset=${PAGE_SIZE}`)
+          .expect(statusChecker(200));
+
+        assertArray(secondPage);
+
+        expect(secondPage.length).toBe(5);
+
+        // Here should be check that we obtained totally another set of items, but tests running in parallel can change
+        // order of items (add new ones or remove some of them) so potentially we can obtain some items in both pages
       });
     });
   });
@@ -141,7 +195,15 @@ describe('CoffeesController (e2e)', () => {
             .send(updateCoffeeDto)
             .expect(statusChecker(200));
 
-          assertObject(updatedCoffeeResult, { ...newCoffeeResult, ...updateCoffeeDto });
+          assertObjectShape(updatedCoffeeResult, newCoffeeResult);
+          assertArray(updatedCoffeeResult.flavors);
+          updatedCoffeeResult.flavors.sort();
+
+          const expected = { ...newCoffeeResult, ...updateCoffeeDto };
+
+          expected.flavors = expected.flavors.slice().sort();
+
+          assertObject(updatedCoffeeResult, expected);
         });
 
       for (const key of Object.keys(updateCoffeeBasicDto)) {
@@ -167,7 +229,15 @@ describe('CoffeesController (e2e)', () => {
           const { body: foundCoffeeResult }: SafeResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
             .expect(statusChecker(200));
 
-          assertObject(foundCoffeeResult, { ...newCoffeeResult, ...updateCoffeeDto });
+          assertObjectShape(foundCoffeeResult, newCoffeeResult);
+          assertArray(foundCoffeeResult.flavors);
+          foundCoffeeResult.flavors.sort();
+
+          const expected = { ...newCoffeeResult, ...updateCoffeeDto };
+
+          expected.flavors = expected.flavors.slice().sort();
+
+          assertObject(foundCoffeeResult, expected);
         });
 
       for (const key of Object.keys(updateCoffeeBasicDto)) {

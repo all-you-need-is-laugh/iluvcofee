@@ -5,6 +5,9 @@ function setupApp (app: INestApplication): INestApplication {
     new ValidationPipe({
       forbidNonWhitelisted: true,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true
+      },
       whitelist: true,
     }),
   );
