@@ -6,29 +6,54 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
-    "format": "yarn lint --fix",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "poststart:debug": "yarn poststart:dev",
-    "poststart:dev": "docker-compose stop postgres && docker-compose rm -f postgres",
-    "posttest": "docker-compose stop test-postgres && docker-compose rm -f test-postgres",
-    "posttest:debug": "yarn posttest",
-    "prebuild": "rimraf dist",
-    "prestart:debug": "yarn prestart:dev",
-    "prestart:dev": "docker-compose up -d postgres",
-    "pretest": "yarn test:clear-cache; docker-compose up -d test-postgres",
-    "pretest:debug": "yarn pretest",
-    "start": "nest start",
-    "start:debug": "nest start --debug --watch",
-    "start:dev": "nest start --watch",
-    "start:prod": "node dist/main",
+    "\n### DB RELATED SCRIPTS": "",
+
+    "db:start": "docker-compose up -d postgres",
+    "db:start-test": "docker-compose up -d test-postgres",
+    "db:stop": "docker-compose stop postgres && docker-compose rm -f postgres",
+    "db:stop-test": "docker-compose stop test-postgres && docker-compose rm -f test-postgres",
+
+
+    "\n### TEST RELATED SCRIPTS": "",
+
+    "pretest": "yarn test:clear-cache; yarn db:start-test",
     "test": "jest",
-    "test:all": "yarn test --config ./test/configs/jest-all.js",
-    "test:clear-cache": "jest --clearCache",
-    "test:cov": "yarn test --coverage --config ./test/configs/jest-all.js",
+    "posttest": "yarn db:stop-test",
+
+    "pretest:debug": "yarn test:clear-cache; yarn db:start-test",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --config ./test/configs/jest-debug.js --runInBand",
+    "posttest:debug": "yarn db:stop-test",
+
+    "test:clear-cache": "jest --clearCache",
+
+    "test:all": "yarn test --config ./test/configs/jest-all.js",
+    "test:cov": "yarn test --coverage --config ./test/configs/jest-all.js",
     "test:e2e": "yarn test --config ./test/configs/jest-e2e.js",
-    "test:unit": "yarn test --config ./test/configs/jest-unit.js"
+    "test:unit": "yarn test --config ./test/configs/jest-unit.js",
+
+
+    "\n### DEVELOPMENT RELATED SCRIPTS": "",
+
+    "prestart": "yarn db:start",
+    "start": "nest start",
+    "poststart": "yarn db:stop",
+
+    "start:dev": "yarn start --watch",
+    "start:debug": "yarn start --debug --watch",
+
+
+    "\n### PRODUCTION RELATED SCRIPTS": "",
+
+    "prebuild": "rimraf dist",
+    "build": "nest build",
+
+    "start:prod": "node dist/main",
+
+
+    "\n### UTILITY SCRIPTS": "",
+
+    "format": "yarn lint --fix",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\""
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
