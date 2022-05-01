@@ -62,7 +62,7 @@ jobs:
         #   eslint-plugin-import
         #   eslint-plugin-spellcheck
         #   eslint-import-resolver-typescript
-        run: >
+        run: |-
           npm -g install yarn@1.22.18
           yarn install --freeze-lock
 
