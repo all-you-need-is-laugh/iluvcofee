@@ -24,8 +24,8 @@ const updateCoffeeDto: UpdateCoffeeDto = {
   flavors: [ 'updated', 'coffee' ]
 };
 
-describe('CoffeeService', () => {
-  let coffeeService: CoffeesService;
+describe('CoffeesService', () => {
+  let coffeesService: CoffeesService;
   let dataSource: DataSource;
 
   beforeAll(async () => {
@@ -46,7 +46,7 @@ describe('CoffeeService', () => {
       providers: [ CoffeesService, ],
     }).compile();
 
-    coffeeService = moduleRef.get<CoffeesService>(CoffeesService);
+    coffeesService = moduleRef.get<CoffeesService>(CoffeesService);
 
     dataSource = moduleRef.get<DataSource>(getConnectionToken());
   });
@@ -57,7 +57,7 @@ describe('CoffeeService', () => {
 
   describe('create', () => {
     it('should create coffee and return its full entity as result', async () => {
-      const newCoffee: CoffeePublic = await coffeeService.create(createCoffeeDto);
+      const newCoffee: CoffeePublic = await coffeesService.create(createCoffeeDto);
 
       expect(newCoffee).toMatchObject({ ...createCoffeeDto, flavors: [ ...createCoffeeDto.flavors ] });
       expect(newCoffee.id).toBeGreaterThanOrEqual(0);
@@ -66,9 +66,9 @@ describe('CoffeeService', () => {
 
   describe('findOne', () => {
     it('should return one coffee by ID', async () => {
-      const newCoffee: CoffeePublic = await coffeeService.create(createCoffeeDto);
+      const newCoffee: CoffeePublic = await coffeesService.create(createCoffeeDto);
 
-      const foundCoffee: CoffeePublic = await coffeeService.findOne(newCoffee.id);
+      const foundCoffee: CoffeePublic = await coffeesService.findOne(newCoffee.id);
 
       expect(foundCoffee).toMatchObject({ ...newCoffee, flavors: [ ...newCoffee.flavors ] });
     });
@@ -76,13 +76,13 @@ describe('CoffeeService', () => {
     it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
       const absentId = maxNumber(4, true);
 
-      await checkError(() => coffeeService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
+      await checkError(() => coffeesService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
     });
 
     it('should throw error for absent ID (out of range)', async () => {
       const absentId = Number.MAX_SAFE_INTEGER;
 
-      await checkError(() => coffeeService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
+      await checkError(() => coffeesService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
     });
   });
 
@@ -99,14 +99,14 @@ describe('CoffeeService', () => {
         flavors: [ 'second', 'coffee' ]
       };
       const [ firstCreated, secondCreated ]: CoffeePublic[] = await Promise.all([
-        coffeeService.create(firstCoffeeDto),
-        coffeeService.create(secondCoffeeDto)
+        coffeesService.create(firstCoffeeDto),
+        coffeesService.create(secondCoffeeDto)
       ]);
 
       assertObject(firstCreated, firstCoffeeDto);
       assertObject(secondCreated, secondCoffeeDto);
 
-      const foundCoffees: CoffeePublic[] = await coffeeService.findAll();
+      const foundCoffees: CoffeePublic[] = await coffeesService.findAll();
 
       const foundFirstCoffee = foundCoffees.find(c => c.id === firstCreated.id);
       const foundSecondCoffee = foundCoffees.find(c => c.id === secondCreated.id);
@@ -127,8 +127,8 @@ describe('CoffeeService', () => {
     describe('and result', () => {
       const dynamicIt = (updateField: string, updateCoffeePartialDto: Partial<UpdateCoffeeDto>) =>
         it(`should be full updated entity (updating ${updateField})`, async () => {
-          const newCoffee: CoffeePublic = await coffeeService.create(createCoffeeDto);
-          const updatedCoffee: CoffeePublic = await coffeeService.update(newCoffee.id, updateCoffeePartialDto);
+          const newCoffee: CoffeePublic = await coffeesService.create(createCoffeeDto);
+          const updatedCoffee: CoffeePublic = await coffeesService.update(newCoffee.id, updateCoffeePartialDto);
           const expected: CoffeePublic = {
             ...newCoffee,
             ...updateCoffeePartialDto,
@@ -150,9 +150,9 @@ describe('CoffeeService', () => {
     describe('and changed value', () => {
       const dynamicIt = (updateField: string, updateCoffeePartialDto: Partial<UpdateCoffeeDto>) =>
         it(`should be full updated entity (updating ${updateField})`, async () => {
-          const newCoffee: CoffeePublic = await coffeeService.create(createCoffeeDto);
-          await coffeeService.update(newCoffee.id, updateCoffeePartialDto);
-          const foundCoffee: CoffeePublic = await coffeeService.findOne(newCoffee.id);
+          const newCoffee: CoffeePublic = await coffeesService.create(createCoffeeDto);
+          await coffeesService.update(newCoffee.id, updateCoffeePartialDto);
+          const foundCoffee: CoffeePublic = await coffeesService.findOne(newCoffee.id);
 
           const expected: CoffeePublic = {
             ...newCoffee,
@@ -177,7 +177,7 @@ describe('CoffeeService', () => {
         const absentId = maxNumber(4, true);
 
         await checkError(
-          () => coffeeService.update(absentId, updateCoffeeDto),
+          () => coffeesService.update(absentId, updateCoffeeDto),
             `Coffee #${absentId} not found`,
             NotFoundException
         );
@@ -187,7 +187,7 @@ describe('CoffeeService', () => {
         const absentId = Number.MAX_SAFE_INTEGER;
 
         await checkError(
-          () => coffeeService.update(absentId, updateCoffeeDto),
+          () => coffeesService.update(absentId, updateCoffeeDto),
             `Coffee #${absentId} not found`,
             NotFoundException
         );
@@ -197,21 +197,21 @@ describe('CoffeeService', () => {
 
   describe('remove', () => {
     it('should return `true` after deletion', async () => {
-      const newCoffee: CoffeePublic = await coffeeService.create(createCoffeeDto);
+      const newCoffee: CoffeePublic = await coffeesService.create(createCoffeeDto);
 
-      expect(await coffeeService.remove(newCoffee.id)).toBe(true);
+      expect(await coffeesService.remove(newCoffee.id)).toBe(true);
     });
 
     it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
       const absentId = maxNumber(4, true);
 
-      expect(await coffeeService.remove(absentId)).toBe(false);
+      expect(await coffeesService.remove(absentId)).toBe(false);
     });
 
     it('should throw error for absent ID (out of range)', async () => {
       const absentId = Number.MAX_SAFE_INTEGER;
 
-      expect(await coffeeService.remove(absentId)).toBe(false);
+      expect(await coffeesService.remove(absentId)).toBe(false);
     });
   });
 });
