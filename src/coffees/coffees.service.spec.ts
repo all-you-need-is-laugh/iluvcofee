@@ -26,7 +26,7 @@ const updateCoffeeDto: UpdateCoffeeDto = {
 
 describe('CoffeesService', () => {
   let coffeesService: CoffeesService;
-  let dataSource: DataSource;
+  let dataSource: DataSource | undefined;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -52,6 +52,8 @@ describe('CoffeesService', () => {
   });
 
   afterAll(async () => {
+    if (!dataSource) return;
+
     await dataSource.destroy();
   });
 
