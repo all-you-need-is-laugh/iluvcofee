@@ -65,13 +65,19 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'error',
     'no-multiple-empty-lines': ['warn', { max: 1, maxBOF: 0, maxEOF: 1}],
     'no-restricted-imports': 'off',
-    'no-restricted-syntax': ['error', {
-      selector: 'VariableDeclaration[kind=let] > VariableDeclarator[init.type="Literal"][init.raw="null"] > Identifier.id:not([typeAnnotation]), VariableDeclaration[kind=let] > VariableDeclarator[init=null] > Identifier.id:not([typeAnnotation]), VariableDeclaration[kind=let] > VariableDeclarator[init.type="Identifier"][init.name="undefined"] > Identifier.id:not([typeAnnotation])',
-      message: 'Declared variables must have type or be assigned with value (excluding `null` and `undefined`)'
-    }],
+    'no-restricted-syntax': ['error',
+      {
+        selector: 'VariableDeclaration[kind=let] > VariableDeclarator[init.type="Literal"][init.raw="null"] > Identifier.id:not([typeAnnotation]), VariableDeclaration[kind=let] > VariableDeclarator[init=null] > Identifier.id:not([typeAnnotation]), VariableDeclaration[kind=let] > VariableDeclarator[init.type="Identifier"][init.name="undefined"] > Identifier.id:not([typeAnnotation])',
+        message: 'Declared variables must have type or be assigned with value (excluding `null` and `undefined`)'
+      },
+      {
+        selector: 'ImportDeclaration[source.value=@nestjs/typeorm] > ImportSpecifier[imported.name="TypeOrmModule"]',
+        message: 'TypeOrmModule from @nestjs/typeorm is forbidden - use SharedTypeOrmModule instead'
+      }
+    ],
     'no-undef': 'error',
     'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '_.*' }],
+    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '_.*', ignoreRestSiblings: true }],
     'no-use-before-define': 'off',
     '@typescript-eslint/no-use-before-define': ['error', { typedefs: false }],
     'object-curly-spacing': ['warn', 'always'],

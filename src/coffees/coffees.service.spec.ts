@@ -1,10 +1,11 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { getConnectionToken, TypeOrmModule } from '@nestjs/typeorm';
+import { getConnectionToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { assertObject } from '../../test/utils/assertions';
 import { checkRejection } from '../../test/utils/checkRejection';
 import { maxNumber } from '../../test/utils/maxNumber';
+import { SharedTypeOrmModule } from '../typeorm/shared-typeorm.module';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
@@ -31,19 +32,10 @@ describe('CoffeesService', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({
-          autoLoadEntities: true,
-          database: 'iluvcofee',
-          host: 'localhost',
-          password: 'postgres',
-          port: 5442,
-          synchronize: process.env.NODE_ENV !== 'production',
-          type: 'postgres',
-          username: 'postgres',
-        }),
-        TypeOrmModule.forFeature([ Coffee, Flavor ])
+        SharedTypeOrmModule.forRoot(),
+        SharedTypeOrmModule.forFeature([ Coffee, Flavor ])
       ],
-      providers: [ CoffeesService, ],
+      providers: [ CoffeesService ],
     }).compile();
 
     coffeesService = moduleRef.get<CoffeesService>(CoffeesService);

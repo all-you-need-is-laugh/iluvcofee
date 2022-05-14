@@ -1,13 +1,12 @@
-/* eslint-disable max-len */
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import 'jest-extended';
 import supertest from 'supertest';
 import { CoffeesModule } from '../../src/coffees/coffees.module';
 import { CreateCoffeeDto } from '../../src/coffees/dto/create-coffee.dto';
 import { UpdateCoffeeDto } from '../../src/coffees/dto/update-coffee.dto';
 import setupApp from '../../src/setupApp';
+import { SharedTypeOrmModule } from '../../src/typeorm/shared-typeorm.module';
 import { assertArray, assertObject, assertObjectShape } from '../utils/assertions';
 import { statusChecker } from '../utils/statusChecker';
 import { SafeResponse } from '../utils/types/SafeResponse';
@@ -31,16 +30,7 @@ describe('CoffeesController (e2e)', () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [
         CoffeesModule,
-        TypeOrmModule.forRoot({
-          autoLoadEntities: true,
-          database: 'iluvcofee',
-          host: 'localhost',
-          password: 'postgres',
-          port: 5442,
-          synchronize: process.env.NODE_ENV !== 'production',
-          type: 'postgres',
-          username: 'postgres',
-        })
+        SharedTypeOrmModule.forRoot()
       ],
     }).compile();
 
