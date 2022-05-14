@@ -1,18 +1,34 @@
-import { registerAs } from '@nestjs/config';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { IsBoolean, IsPositive, MinLength } from 'class-validator';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { BindToEnv } from '../../config/decorators/bind-to-env.decorator';
+import { FromEnv } from '../../config/decorators/from-env.decorator';
+import registerConfig from '../../config/registerConfig';
 
-export default registerAs('typeOrmPg', () => {
-  const postgresConfig: PostgresConnectionOptions & TypeOrmModuleOptions = {
-    autoLoadEntities: true,
-    database: String(process.env.POSTGRES_DB),
-    host: String(process.env.POSTGRES_HOST),
-    password: String(process.env.POSTGRES_PASSWORD),
-    port: Number(process.env.POSTGRES_PORT),
-    synchronize: process.env.NODE_ENV === 'test', // use migrations for schema synchronization
-    type: 'postgres',
-    username: String(process.env.POSTGRES_USER),
-  };
+class TypeOrmPgConfig implements PostgresConnectionOptions {
+  readonly autoLoadEntities = true;
 
-  return postgresConfig;
-});
+  @FromEnv('POSTGRES_DB')
+  @BindToEnv(MinLength)(3)
+  readonly database: string;
+
+  @FromEnv('POSTGRES_HOST')
+  readonly host: string;
+
+  @FromEnv('POSTGRES_PASSWORD')
+  readonly password: string;
+
+  @BindToEnv(IsPositive)()
+  @FromEnv('POSTGRES_PORT')
+  readonly port: number;
+
+  @BindToEnv(IsBoolean)()
+  @FromEnv('NODE_ENV', (arg) => arg === 'test')
+  readonly synchronize: boolean;
+
+  readonly type = 'postgres';
+
+  @FromEnv('POSTGRES_USER')
+  readonly username: string;
+}
+
+export default registerConfig('typeOrmPg', TypeOrmPgConfig);

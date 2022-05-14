@@ -110,6 +110,7 @@ module.exports = {
       ],
       'skipWords': [
         'charset',
+        'cls',
         'dto',
         'enum',
         'iluvcofee',
@@ -117,6 +118,8 @@ module.exports = {
         'keyof',
         'len',
         'localhost',
+        'metadatas',
+        'metatype',
         'nullable',
         'orm',
         'postgres',
