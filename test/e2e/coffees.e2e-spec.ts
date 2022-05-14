@@ -9,8 +9,8 @@ import { CreateCoffeeDto } from '../../src/coffees/dto/create-coffee.dto';
 import { UpdateCoffeeDto } from '../../src/coffees/dto/update-coffee.dto';
 import setupApp from '../../src/setupApp';
 import { assertArray, assertObject, assertObjectShape } from '../utils/assertions';
-import { SafeResponse } from '../utils/SafeResponse';
 import { statusChecker } from '../utils/statusChecker';
+import { SafeResponse } from '../utils/types/SafeResponse';
 
 const createCoffeeDto: CreateCoffeeDto = {
   name: 'New Coffee Name',
