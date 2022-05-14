@@ -5,6 +5,7 @@ import supertest from 'supertest';
 import { CoffeesModule } from '../../src/coffees/coffees.module';
 import { CreateCoffeeDto } from '../../src/coffees/dto/create-coffee.dto';
 import { UpdateCoffeeDto } from '../../src/coffees/dto/update-coffee.dto';
+import { SharedConfigModule } from '../../src/config/shared-config.module';
 import setupApp from '../../src/setupApp';
 import { SharedTypeOrmModule } from '../../src/typeorm/shared-typeorm.module';
 import { assertArray, assertObject, assertObjectShape } from '../utils/assertions';
@@ -30,6 +31,7 @@ describe('CoffeesController (e2e)', () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [
         CoffeesModule,
+        SharedConfigModule.forRoot(),
         SharedTypeOrmModule.forRoot()
       ],
     }).compile();

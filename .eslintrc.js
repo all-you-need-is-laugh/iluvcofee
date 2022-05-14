@@ -71,6 +71,10 @@ module.exports = {
         message: 'Declared variables must have type or be assigned with value (excluding `null` and `undefined`)'
       },
       {
+        selector: 'ImportDeclaration[source.value=@nestjs/config] > ImportSpecifier[imported.name="ConfigModule"]',
+        message: 'ConfigModule from @nestjs/config is forbidden - use SharedConfigModule instead'
+      },
+      {
         selector: 'ImportDeclaration[source.value=@nestjs/typeorm] > ImportSpecifier[imported.name="TypeOrmModule"]',
         message: 'TypeOrmModule from @nestjs/typeorm is forbidden - use SharedTypeOrmModule instead'
       }

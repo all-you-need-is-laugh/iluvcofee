@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 import { assertObject } from '../../test/utils/assertions';
 import { checkRejection } from '../../test/utils/checkRejection';
 import { maxNumber } from '../../test/utils/maxNumber';
+import { SharedConfigModule } from '../config/shared-config.module';
 import { SharedTypeOrmModule } from '../typeorm/shared-typeorm.module';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
@@ -32,6 +33,7 @@ describe('CoffeesService', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
+        SharedConfigModule.forRoot(),
         SharedTypeOrmModule.forRoot(),
         SharedTypeOrmModule.forFeature([ Coffee, Flavor ])
       ],
