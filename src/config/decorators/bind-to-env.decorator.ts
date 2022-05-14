@@ -14,7 +14,7 @@ export interface SimpleTransform {
   (value: string): TransformFnParams['value']
 }
 
-// TODO: Remove this decorator in favor of smarter `exceptionFactory` inside `ConfigPipe`
+// TODO: [config] Remove this decorator in favor of smarter `exceptionFactory` inside `ConfigPipe`
 export function BindToEnv (decoratorGenerator: DecoratorGenerator): DecoratorGenerator {
   const expectedArgLength = decoratorGenerator.length;
 

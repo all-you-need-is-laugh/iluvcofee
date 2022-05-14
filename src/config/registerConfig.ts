@@ -33,11 +33,11 @@ export class ConfigPipe<T> extends ValidationPipe {
 type RegisterConfigReturn<T> = ConfigFactory<T> & ConfigFactoryKeyHost<ReturnType<ConfigFactory<T>>>;
 
 function registerConfig<T extends ConfigObject> (token: string, Constructor: Type<T>): RegisterConfigReturn<T> {
-  // TODO: have only one instance of the `configPipe`
+  // FIXME: [config] make only one instance of the `configPipe`
   const configPipe = new ConfigPipe(Constructor);
 
   const configFactory: ConfigFactory<T> = async (envMap: NodeProcessEnv = process.env) => {
-    // TODO: make `configPipe.transform` synchronous
+    // FIXME: [config] make `configPipe.transform` synchronous
     const config = await configPipe.transform(envMap);
 
     return config;

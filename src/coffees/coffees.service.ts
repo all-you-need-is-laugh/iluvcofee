@@ -74,7 +74,7 @@ export class CoffeesService {
     return this.findOne(id);
   }
 
-  // TODO: add tests for this method
+  // TODO: [tests] add tests for this method
   async recommendCoffee (id: number): Promise<boolean> {
     const coffee = await this.coffeeRepository.preload({ id });
 
@@ -87,14 +87,14 @@ export class CoffeesService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    // TODO: Extract to some kind "perform event" method
+    // TODO: [refactor] Extract to some kind "perform event" method
     try {
       coffee.recommendations++;
 
       const recommendationEvent = new Event();
-      // TODO: convert to enum
+      // TODO: [types] convert to enum
       recommendationEvent.name = 'recommend_coffee';
-      // TODO: convert to enum
+      // TODO: [types] convert to enum
       recommendationEvent.type = 'coffee';
       recommendationEvent.payload = { coffeeId: id };
 
@@ -105,8 +105,8 @@ export class CoffeesService {
 
       return true;
     } catch (err: unknown) {
-      // TODO: replace with logger
-      console.log('### > CoffeesService > recommendCoffee > err', err);
+      // TODO: [logger] replace with logger
+      console.log('CoffeesService::recommendCoffee failed with', err);
       await queryRunner.rollbackTransaction();
 
       return false;
