@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { getConnectionToken, TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { assertObject } from '../../test/utils/assertions';
-import { checkError } from '../../test/utils/checkError';
+import { checkRejection } from '../../test/utils/checkRejection';
 import { maxNumber } from '../../test/utils/maxNumber';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
@@ -76,13 +76,13 @@ describe('CoffeesService', () => {
     it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
       const absentId = maxNumber(4, true);
 
-      await checkError(() => coffeesService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
+      await checkRejection(() => coffeesService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
     });
 
     it('should throw error for absent ID (out of range)', async () => {
       const absentId = Number.MAX_SAFE_INTEGER;
 
-      await checkError(() => coffeesService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
+      await checkRejection(() => coffeesService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
     });
   });
 
@@ -176,7 +176,7 @@ describe('CoffeesService', () => {
       it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
         const absentId = maxNumber(4, true);
 
-        await checkError(
+        await checkRejection(
           () => coffeesService.update(absentId, updateCoffeeDto),
             `Coffee #${absentId} not found`,
             NotFoundException
@@ -186,7 +186,7 @@ describe('CoffeesService', () => {
       it('should throw error for absent ID (out of range)', async () => {
         const absentId = Number.MAX_SAFE_INTEGER;
 
-        await checkError(
+        await checkRejection(
           () => coffeesService.update(absentId, updateCoffeeDto),
             `Coffee #${absentId} not found`,
             NotFoundException

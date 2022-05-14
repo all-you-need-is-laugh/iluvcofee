@@ -1,8 +1,8 @@
-interface CheckError {
+interface CheckRejection {
   (fn: () => Promise<unknown>, message: string, ErrorConstructor?: unknown): Promise<unknown>
 }
 
-export const checkError: CheckError = async (fn, message, ErrorConstructor) => {
+export const checkRejection: CheckRejection = async (fn, message, ErrorConstructor) => {
   const rejected = expect(fn).rejects;
 
   const checkMessagePromise = rejected.toHaveProperty('message', message);
