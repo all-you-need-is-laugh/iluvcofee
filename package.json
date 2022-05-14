@@ -8,24 +8,27 @@
   "scripts": {
     "\n### DB RELATED SCRIPTS": "",
 
-    "db:start": "docker-compose up -d postgres",
-    "db:stop": "docker-compose stop postgres",
-    "db:reset": "docker-compose rm -f -v -s postgres",
+    "dc:dev": "docker-compose --env-file .env.development",
+    "dc:test": "docker-compose --env-file .env.test",
 
-    "db:start-test": "docker-compose up -d test-postgres",
-    "db:stop-test": "docker-compose stop test-postgres",
-    "db:reset-test": "docker-compose rm -f -v -s test-postgres",
+    "db:start": "yarn dc:dev up -d postgres",
+    "db:stop": "yarn dc:dev stop postgres",
+    "db:reset": "yarn dc:dev rm -f -v -s postgres",
+
+    "db:start-test": "yarn dc:test up -d test-postgres",
+    "db:stop-test": "yarn dc:test stop test-postgres",
+    "db:reset-test": "yarn dc:test rm -f -v -s test-postgres",
 
 
     "\n### TEST RELATED SCRIPTS": "",
 
     "pretest": "yarn test:clear-cache; yarn db:start-test",
     "test": "jest",
-    "posttest": "yarn db:stop-test",
+    "posttest": "yarn db:reset-test",
 
     "pretest:debug": "yarn test:clear-cache; yarn db:start-test",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --config ./test/configs/jest-debug.js --runInBand",
-    "posttest:debug": "yarn db:stop-test",
+    "posttest:debug": "yarn db:reset-test",
 
     "test:clear-cache": "jest --clearCache",
 
@@ -79,6 +82,7 @@
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
+    "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/platform-express": "^8.0.0",

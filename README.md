@@ -71,3 +71,20 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+## Statements
+
+# Configuration
+
+1. All transient settings must be provided via `ConfigService` (`registerConfig` and `InjectConfig` helpers with `ConfigSchema` class)
+2. All settings in `ConfigService` must be validated via schema (`ConfigSchema`)
+3. `ConfigSchema` must read any settings from environment variables (using `@FromEnv`) or have defined constants
+4. All settings in `ConfigService` must be converted to their final type (and not only strings)
+5. Any necessary environment variables in local modes (`development` or `test`) must be specified only in proper `.env*` file: `.env.development` or `.env.test`
+6. Any necessary environment variables in container mode (`production` and any other non-local) must be passed only via environment variables provided to container
+7. Any mode-related setting converting logic must be performed inside `ConfigSchema`
+8. Env var `NODE_ENV` responding for running mode:
+  * `production` - must be passed as any other env var for production - provided to container
+  * `test` - is specified by Jest
+  * `development` - considered as default mode
+

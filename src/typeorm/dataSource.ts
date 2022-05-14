@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 
-// TODO: read config from .env files
+// FIXME: [config] read config from .env files
 const dataSource = new DataSource({
   database: 'iluvcofee',
   entities: [ 'src/**/*.entity.ts' ],
