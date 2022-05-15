@@ -110,6 +110,7 @@ module.exports = {
         /\b\w*[^\w\s]+\w*\b/,
       ],
       'skipWords': [
+        'argv',
         'charset',
         'cls',
         'dto',
