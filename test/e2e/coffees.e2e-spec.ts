@@ -261,7 +261,7 @@ describe('CoffeesController (e2e)', () => {
     });
 
     describe('failure', () => {
-      it.todo('should throw error for absent ID');
+      it.todo('should response with error for wrong ID (in range of signed 4-byte integer)');
     });
   });
 
@@ -280,8 +280,10 @@ describe('CoffeesController (e2e)', () => {
 
         expect(removeCoffeeResult).toBe(true);
       });
+    });
 
-      it.todo('should return `false` for absent ID');
+    describe('failure', () => {
+      it.todo('should response with error for wrong ID (in range of signed 4-byte integer)');
     });
   });
 });
