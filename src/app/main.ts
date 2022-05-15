@@ -10,4 +10,5 @@ async function bootstrap () {
   // FIXME: [config] read port from app config
   await app.listen(3000);
 }
+
 bootstrap();
