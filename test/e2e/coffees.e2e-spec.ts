@@ -9,6 +9,7 @@ import { UpdateCoffeeDto } from '../../src/coffees/dto/update-coffee.dto';
 import { SharedConfigModule } from '../../src/config/shared-config.module';
 import { SharedTypeOrmModule } from '../../src/typeorm/shared-typeorm.module';
 import { assertArray, assertObject, assertObjectShape } from '../utils/assertions';
+import { maxNumber } from '../utils/maxNumber';
 import { statusChecker } from '../utils/statusChecker';
 import { SafeResponse } from '../utils/types/SafeResponse';
 
@@ -82,7 +83,27 @@ describe('CoffeesController (e2e)', () => {
     });
 
     describe('failure', () => {
-      it.todo('should throw error for absent ID');
+      it('should response with error for wrong ID (in range of signed 4-byte integer)', async () => {
+        const wrongId = maxNumber(4, true);
+
+        const { body: foundCoffee }: SafeResponse = await server.get(`/coffees/${wrongId}`)
+          .expect(statusChecker(404));
+
+        assertObject(foundCoffee);
+
+        expect(foundCoffee.error).toEqual(`Coffee #${wrongId} not found`);
+      });
+
+      it('should response with error for wrong ID (unsupported by database)', async () => {
+        const wrongId = Number.MAX_SAFE_INTEGER;
+
+        const { body: foundCoffee }: SafeResponse = await server.get(`/coffees/${wrongId}`)
+          .expect(statusChecker(404));
+
+        assertObject(foundCoffee);
+
+        expect(foundCoffee.error).toEqual(`Coffee #${wrongId} not found`);
+      });
     });
   });
 

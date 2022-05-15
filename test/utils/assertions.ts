@@ -3,7 +3,7 @@ export function assertArray (arg: unknown): asserts arg is unknown[] {
 }
 
 export function assertObject <T extends object>
-(arg: unknown, template?: T): asserts arg is ({ -readonly [Key in keyof T]-?: T[Key] } & Record<string, unknown>) {
+(arg: unknown, template?: T): asserts arg is (Required<T> & Record<string, unknown>) {
   expect(arg).toBeInstanceOf(Object);
 
   if (template) {
