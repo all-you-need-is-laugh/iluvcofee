@@ -80,6 +80,9 @@ describe('CoffeesService', () => {
 
       await checkRejection(() => coffeesService.findOne(wrongId), `Coffee #${wrongId} not found`, NotFoundException);
     });
+
+    // TODO: [tests] add test case
+    it.todo('should throw error for wrong ID (negative value)');
   });
 
   describe('findAll', () => {
@@ -112,9 +115,10 @@ describe('CoffeesService', () => {
       expect(foundSecondCoffee).toMatchObject({ ...secondCreated, flavors: [ ...secondCreated.flavors ] });
     });
 
+    // TODO: [tests]
     it.todo('should return not more items than specified in `limit` pagination parameter');
 
-    // Implement it after any parent entity for Coffee will be added
+    // TODO: [tests] Implement it after any parent entity for Coffee will be added
     it.todo('should return different items according to `offset` pagination parameter');
   });
 
@@ -188,6 +192,9 @@ describe('CoffeesService', () => {
             NotFoundException
         );
       });
+
+      // TODO: [tests] add test case
+      it.todo('should throw error for wrong ID (negative value)');
     });
   });
 
@@ -209,5 +216,8 @@ describe('CoffeesService', () => {
 
       expect(await coffeesService.remove(wrongId)).toBe(false);
     });
+
+    // TODO: [tests] add test case
+    it.todo('should throw error for wrong ID (negative value)');
   });
 });

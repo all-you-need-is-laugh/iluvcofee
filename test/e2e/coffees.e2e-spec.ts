@@ -104,6 +104,9 @@ describe('CoffeesController (e2e)', () => {
 
         expect(foundCoffee.error).toEqual(`Coffee #${wrongId} not found`);
       });
+
+      // TODO: [validation] [tests] add test case
+      it.todo('should response with error for wrong ID (negative value - validation error)');
     });
   });
 
@@ -261,7 +264,14 @@ describe('CoffeesController (e2e)', () => {
     });
 
     describe('failure', () => {
+      // TODO: [validation] [tests] add test case
       it.todo('should response with error for wrong ID (in range of signed 4-byte integer)');
+
+      // TODO: [validation] [tests] add test case
+      it.todo('should response with error for wrong ID (unsupported by database)');
+
+      // TODO: [validation] [tests] add test case
+      it.todo('should response with error for wrong ID (negative value - validation error)');
     });
   });
 
@@ -283,7 +293,14 @@ describe('CoffeesController (e2e)', () => {
     });
 
     describe('failure', () => {
+      // TODO: [validation] [tests] add test case
       it.todo('should response with error for wrong ID (in range of signed 4-byte integer)');
+
+      // TODO: [validation] [tests] add test case
+      it.todo('should response with error for wrong ID (unsupported by database)');
+
+      // TODO: [validation] [tests] add test case
+      it.todo('should response with error for wrong ID (negative value - validation error)');
     });
   });
 });
