@@ -2,12 +2,10 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import 'jest-extended';
 import supertest from 'supertest';
+import { AppModule } from '../../src/app/app.module';
 import setupApp from '../../src/app/setupApp';
-import { CoffeesModule } from '../../src/coffees/coffees.module';
 import { CreateCoffeeDto } from '../../src/coffees/dto/create-coffee.dto';
 import { UpdateCoffeeDto } from '../../src/coffees/dto/update-coffee.dto';
-import { SharedConfigModule } from '../../src/config/shared-config.module';
-import { SharedTypeOrmModule } from '../../src/typeorm/shared-typeorm.module';
 import { assertArray, assertObject, assertObjectShape } from '../utils/assertions';
 import { maxNumber } from '../utils/maxNumber';
 import { statusChecker } from '../utils/statusChecker';
@@ -30,11 +28,7 @@ describe('CoffeesController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [
-        CoffeesModule,
-        SharedConfigModule.forRoot(),
-        SharedTypeOrmModule.forRoot()
-      ],
+      imports: [ AppModule ],
     }).compile();
 
     app = moduleRef.createNestApplication();
