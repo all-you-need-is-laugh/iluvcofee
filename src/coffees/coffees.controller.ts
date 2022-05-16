@@ -9,6 +9,7 @@ import {
   Post,
   Query
 } from '@nestjs/common';
+import { Public } from '../common/decorators/public.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
@@ -19,6 +20,7 @@ import { CoffeePublic } from './entities/coffee-public.entity';
 export class CoffeesController {
   constructor (private readonly coffeesService: CoffeesService) {}
 
+  @Public()
   @Get()
   async findAll (@Query() paginationQuery: PaginationQueryDto): Promise<CoffeePublic[]> {
     return this.coffeesService.findAll(paginationQuery);
