@@ -1,4 +1,5 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ApiKeyGuard } from '../common/guards/api-key.guard';
 
 function setupApp (app: INestApplication): INestApplication {
   app.useGlobalPipes(
@@ -11,6 +12,8 @@ function setupApp (app: INestApplication): INestApplication {
       whitelist: true,
     }),
   );
+
+  app.useGlobalGuards(new ApiKeyGuard());
 
   return app;
 }
