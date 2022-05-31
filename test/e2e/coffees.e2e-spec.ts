@@ -6,9 +6,16 @@ import { AppModule } from '../../src/app/app.module';
 import setupApp from '../../src/app/setupApp';
 import { CreateCoffeeDto } from '../../src/coffees/dto/create-coffee.dto';
 import { UpdateCoffeeDto } from '../../src/coffees/dto/update-coffee.dto';
-import { assertArray, assertObject, assertObjectShape } from '../utils/assertions';
+import { assertArray, assertObject } from '../utils/assertions';
 import { maxNumber } from '../utils/maxNumber';
+import {
+  parseResponseData,
+  parseResponseDataAsArray,
+  parseResponseDataWithShape,
+  parseResponseDataWithTemplate
+} from '../utils/parseResponseData';
 import { statusChecker } from '../utils/statusChecker';
+import { asObject } from '../utils/type-convertions';
 import { SafeResponse } from '../utils/types/SafeResponse';
 
 const createCoffeeDto: CreateCoffeeDto = {
@@ -47,11 +54,11 @@ describe('CoffeesController (e2e)', () => {
 
     describe('success', () => {
       it('should create coffee and return its full entity as result', async () => {
-        const { body: newCoffeeResult }: SafeResponse = await server.post('/coffees')
+        const response: SafeResponse = await server.post('/coffees')
           .send(createCoffeeDto)
           .expect(statusChecker(201));
 
-        assertObject(newCoffeeResult, createCoffeeDto);
+        const newCoffeeResult = parseResponseDataWithTemplate(response, createCoffeeDto);
 
         expect(newCoffeeResult.id).toBeGreaterThanOrEqual(0);
       });
@@ -63,16 +70,18 @@ describe('CoffeesController (e2e)', () => {
     describe('success', () => {
 
       it('should return one coffee by ID', async () => {
-        const { body: newCoffeeResult }: SafeResponse = await server.post('/coffees')
+        const responseToCreate: SafeResponse = await server.post('/coffees')
           .send(createCoffeeDto)
           .expect(statusChecker(201));
 
-        assertObject(newCoffeeResult, createCoffeeDto);
+        const newCoffeeResult = parseResponseDataWithTemplate(responseToCreate, createCoffeeDto);
 
-        const { body: foundCoffee }: SafeResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
+        expect(newCoffeeResult.id).toBeGreaterThanOrEqual(1);
+
+        const responseToGet: SafeResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
           .expect(statusChecker(200));
 
-        expect(foundCoffee).toEqual(newCoffeeResult);
+        parseResponseDataWithTemplate(responseToGet, newCoffeeResult);
       });
     });
 
@@ -119,7 +128,7 @@ describe('CoffeesController (e2e)', () => {
           brand: 'Second Coffee Brand',
           flavors: [ 'second', 'coffee' ]
         };
-        const [ { body: firstCreated }, { body: secondCreated } ]: [SafeResponse, SafeResponse] = await Promise.all([
+        const [ responseToFirstCreate, responseToSecondCreate ]: [SafeResponse, SafeResponse] = await Promise.all([
           server.post('/coffees')
             .send(firstCoffeeDto)
             .expect(statusChecker(201)),
@@ -128,16 +137,16 @@ describe('CoffeesController (e2e)', () => {
             .expect(statusChecker(201)),
         ]);
 
-        assertObject(firstCreated, firstCoffeeDto);
-        assertObject(secondCreated, secondCoffeeDto);
+        const firstCreated = parseResponseDataWithTemplate(responseToFirstCreate, firstCoffeeDto);
+        const secondCreated = parseResponseDataWithTemplate(responseToSecondCreate, secondCoffeeDto);
 
-        const { body: foundCoffees }: SafeResponse = await server.get('/coffees')
+        const responseToGet: SafeResponse = await server.get('/coffees')
           .expect(statusChecker(200));
 
-        assertArray(foundCoffees);
+        const foundCoffees = parseResponseDataAsArray(responseToGet);
 
-        const foundFirstCoffee = foundCoffees.find(c => (assertObject(c), c.id === firstCreated.id));
-        const foundSecondCoffee = foundCoffees.find(c => (assertObject(c), c.id === secondCreated.id));
+        const foundFirstCoffee = foundCoffees.find(c => asObject(c).id === firstCreated.id);
+        const foundSecondCoffee = foundCoffees.find(c => asObject(c).id === secondCreated.id);
 
         expect(foundFirstCoffee).toEqual(firstCreated);
         expect(foundSecondCoffee).toEqual(secondCreated);
@@ -163,24 +172,24 @@ describe('CoffeesController (e2e)', () => {
 
         // Database can (and most likely) has another items, so don't expect to obtain only those items we just created!
 
-        const { body: allCoffees }: SafeResponse = await server.get('/coffees')
+        const responseToGetAllCoffees: SafeResponse = await server.get('/coffees')
           .expect(statusChecker(200));
 
-        assertArray(allCoffees);
+        const allCoffees = parseResponseDataAsArray(responseToGetAllCoffees);
 
         expect(allCoffees.length).toBeGreaterThanOrEqual(10);
 
-        const { body: firstPage }: SafeResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
+        const responseToGetFirstPage: SafeResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
           .expect(statusChecker(200));
 
-        assertArray(firstPage);
+        const firstPage = parseResponseDataAsArray(responseToGetFirstPage);
 
         expect(firstPage.length).toBe(5);
 
-        const { body: secondPage }: SafeResponse = await server.get(`/coffees?limit=${PAGE_SIZE}&offset=${PAGE_SIZE}`)
+        const responseToGetSecondPage: SafeResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
           .expect(statusChecker(200));
 
-        assertArray(secondPage);
+        const secondPage = parseResponseDataAsArray(responseToGetSecondPage);
 
         expect(secondPage.length).toBe(5);
 
@@ -195,22 +204,26 @@ describe('CoffeesController (e2e)', () => {
     describe('and result', () => {
       const dynamicIt = (updateField: string, updateCoffeeDto: Partial<UpdateCoffeeDto>) =>
         it(`should be full updated entity (updating ${updateField})`, async () => {
-          const { body: newCoffeeResult }: SafeResponse = await server.post('/coffees')
+          const responseToCreate: SafeResponse = await server.post('/coffees')
             .send(createCoffeeDto)
             .expect(statusChecker(201));
 
-          assertObject(newCoffeeResult, createCoffeeDto);
+          const newCoffeeResult = parseResponseDataWithTemplate(responseToCreate, createCoffeeDto);
+          expect(newCoffeeResult.id).toBeGreaterThanOrEqual(1);
 
-          const { body: updatedCoffeeResult }: SafeResponse = await server.patch(`/coffees/${newCoffeeResult.id}`)
+          const responseToUpdate: SafeResponse = await server.patch(`/coffees/${newCoffeeResult.id}`)
             .send(updateCoffeeDto)
             .expect(statusChecker(200));
 
-          assertObjectShape(updatedCoffeeResult, newCoffeeResult);
+          const updatedCoffeeResult = parseResponseDataWithShape(responseToUpdate, newCoffeeResult);
+
           assertArray(updatedCoffeeResult.flavors);
           updatedCoffeeResult.flavors.sort();
 
           const expected = { ...newCoffeeResult, ...updateCoffeeDto };
 
+          // Copy flavors array from `expected` before sort to avoid changing
+          // of `updateCoffeeDto` (as `updateCoffeeBasicDto`)
           expected.flavors = expected.flavors.slice().sort();
 
           assertObject(updatedCoffeeResult, expected);
@@ -226,25 +239,29 @@ describe('CoffeesController (e2e)', () => {
     describe('and changed value', () => {
       const dynamicIt = (updateField: string, updateCoffeeDto: Partial<UpdateCoffeeDto>) =>
         it(`should be full updated entity (updating ${updateField})`, async () => {
-          const { body: newCoffeeResult }: SafeResponse = await server.post('/coffees')
+          const responseToCreate: SafeResponse = await server.post('/coffees')
             .send(createCoffeeDto)
             .expect(statusChecker(201));
 
-          assertObject(newCoffeeResult, createCoffeeDto);
+          const newCoffeeResult = parseResponseDataWithTemplate(responseToCreate, createCoffeeDto);
+          expect(newCoffeeResult.id).toBeGreaterThanOrEqual(1);
 
           await server.patch(`/coffees/${newCoffeeResult.id}`)
             .send(updateCoffeeDto)
             .expect(statusChecker(200));
 
-          const { body: foundCoffeeResult }: SafeResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
+          const responseToGet: SafeResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
             .expect(statusChecker(200));
 
-          assertObjectShape(foundCoffeeResult, newCoffeeResult);
+          const foundCoffeeResult = parseResponseDataWithShape(responseToGet, newCoffeeResult);
+
           assertArray(foundCoffeeResult.flavors);
           foundCoffeeResult.flavors.sort();
 
           const expected = { ...newCoffeeResult, ...updateCoffeeDto };
 
+          // Copy flavors array from `expected` before sort to avoid changing
+          // of `updateCoffeeDto` (as `updateCoffeeBasicDto`)
           expected.flavors = expected.flavors.slice().sort();
 
           assertObject(foundCoffeeResult, expected);
@@ -273,14 +290,18 @@ describe('CoffeesController (e2e)', () => {
 
     describe('success', () => {
       it('should return `true` after deletion', async () => {
-        const { body: newCoffeeResult }: SafeResponse = await server.post('/coffees')
+        const responseToCreate: SafeResponse = await server.post('/coffees')
           .send(createCoffeeDto)
           .expect(statusChecker(201));
 
-        assertObject(newCoffeeResult, createCoffeeDto);
+        const newCoffeeResult = parseResponseDataWithTemplate(responseToCreate, createCoffeeDto);
 
-        const { body: removeCoffeeResult }: SafeResponse = await server.delete(`/coffees/${newCoffeeResult.id}`)
+        expect(newCoffeeResult.id).toBeGreaterThanOrEqual(1);
+
+        const responseToDelete: SafeResponse = await server.delete(`/coffees/${newCoffeeResult.id}`)
           .expect(statusChecker(200));
+
+        const removeCoffeeResult = parseResponseData(responseToDelete);
 
         expect(removeCoffeeResult).toBe(true);
       });

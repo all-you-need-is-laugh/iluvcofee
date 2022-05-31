@@ -88,7 +88,7 @@ module.exports = {
     'object-property-newline': ['warn', { allowAllPropertiesOnSameLine: true} ],
     '@typescript-eslint/prefer-for-of': 'warn',
     '@typescript-eslint/no-var-requires': 'warn',
-    'quotes': ['warn', 'single', { 'avoidEscape': true }],
+    'quotes': ['warn', 'single', { allowTemplateLiterals: true, avoidEscape: true }],
     'quote-props': ['error', 'consistent-as-needed'],
     'semi': ['error', 'always'],
     'sort-keys': ['error', 'asc', { 'caseSensitive': true, 'minKeys': 6, 'natural': true }],
