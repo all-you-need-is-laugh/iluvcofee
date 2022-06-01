@@ -122,23 +122,23 @@ describe('CoffeesController (e2e)', () => {
       it('should response with error for wrong ID (in range of signed 4-byte integer)', async () => {
         const wrongId = maxNumber(4, true);
 
-        const { body: foundCoffee }: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
+        const response: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
           .expect(statusChecker(404));
 
-        assertObject(foundCoffee);
+        const error = parseResponseError(response);
 
-        expect(foundCoffee.error).toEqual(`Coffee #${wrongId} not found`);
+        expect(error).toEqual(`Coffee #${wrongId} not found`);
       });
 
       it('should response with error for wrong ID (unsupported by database)', async () => {
         const wrongId = Number.MAX_SAFE_INTEGER;
 
-        const { body: foundCoffee }: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
+        const response: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
           .expect(statusChecker(404));
 
-        assertObject(foundCoffee);
+        const error = parseResponseError(response);
 
-        expect(foundCoffee.error).toEqual(`Coffee #${wrongId} not found`);
+        expect(error).toEqual(`Coffee #${wrongId} not found`);
       });
 
       // TODO: [validation] [tests] add test case
