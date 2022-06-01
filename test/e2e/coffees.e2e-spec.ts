@@ -19,7 +19,7 @@ import {
 import { statusChecker } from '../utils/statusChecker';
 import { asObject } from '../utils/type-convertions';
 import { Shape } from '../utils/types/Shape';
-import { SuperTestResponse, SuperTestServer } from '../utils/types/SuperTest';
+import { SuperTestRequestAuthParameters, SuperTestResponse, SuperTestServer } from '../utils/types/SuperTest';
 
 const createCoffeeDto: CreateCoffeeDto = {
   name: 'New Coffee Name',
@@ -36,10 +36,11 @@ describe('CoffeesController (e2e)', () => {
   let app: INestApplication;
   let server: SuperTestServer;
   const TEST_SERVER_API_KEY = 'test_01234567890';
+  const authParams: SuperTestRequestAuthParameters = [ TEST_SERVER_API_KEY, { type: 'bearer' } ];
 
   async function requestToCreateAuthorized (createDto: CreateCoffeeDto): Promise<CoffeePublic> {
     const response: SuperTestResponse = await server.post('/coffees')
-      .auth(TEST_SERVER_API_KEY, { type: 'bearer' })
+      .auth(...authParams)
       .send(createDto)
       .expect(statusChecker(201));
 
@@ -55,7 +56,7 @@ describe('CoffeesController (e2e)', () => {
     entityToUpdate: CoffeePublic, updateDto: Partial<UpdateCoffeeDto>
   ): Promise<Shape<CoffeePublic>> {
     const responseToUpdate: SuperTestResponse = await server.patch(`/coffees/${entityToUpdate.id}`)
-      .auth(TEST_SERVER_API_KEY, { type: 'bearer' })
+      .auth(...authParams)
       .send(updateDto)
       .expect(statusChecker(200));
 
@@ -310,7 +311,7 @@ describe('CoffeesController (e2e)', () => {
         const newCoffeeResult = await requestToCreateAuthorized(createCoffeeDto);
 
         const responseToDelete: SuperTestResponse = await server.delete(`/coffees/${newCoffeeResult.id}`)
-          .auth(TEST_SERVER_API_KEY, { type: 'bearer' })
+          .auth(...authParams)
           .expect(statusChecker(200));
 
         const removeCoffeeResult = parseResponseData(responseToDelete);
