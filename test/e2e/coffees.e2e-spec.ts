@@ -18,8 +18,8 @@ import {
 } from '../utils/parseResponse';
 import { statusChecker } from '../utils/statusChecker';
 import { asObject } from '../utils/type-convertions';
-import { SafeResponse } from '../utils/types/SafeResponse';
 import { Shape } from '../utils/types/Shape';
+import { SuperTestResponse, SuperTestServer } from '../utils/types/SuperTest';
 
 const createCoffeeDto: CreateCoffeeDto = {
   name: 'New Coffee Name',
@@ -33,12 +33,12 @@ const updateCoffeeDtoTemplate: UpdateCoffeeDto = {
 };
 
 describe('CoffeesController (e2e)', () => {
-  const TEST_SERVER_API_KEY = 'test_01234567890';
   let app: INestApplication;
-  let server: supertest.SuperTest<supertest.Test>;
+  let server: SuperTestServer;
+  const TEST_SERVER_API_KEY = 'test_01234567890';
 
   async function requestToCreateAuthorized (createDto: CreateCoffeeDto): Promise<CoffeePublic> {
-    const response: SafeResponse = await server.post('/coffees')
+    const response: SuperTestResponse = await server.post('/coffees')
       .auth(TEST_SERVER_API_KEY, { type: 'bearer' })
       .send(createDto)
       .expect(statusChecker(201));
@@ -54,7 +54,7 @@ describe('CoffeesController (e2e)', () => {
   async function requestToUpdateAuthorized (
     entityToUpdate: CoffeePublic, updateDto: Partial<UpdateCoffeeDto>
   ): Promise<Shape<CoffeePublic>> {
-    const responseToUpdate: SafeResponse = await server.patch(`/coffees/${entityToUpdate.id}`)
+    const responseToUpdate: SuperTestResponse = await server.patch(`/coffees/${entityToUpdate.id}`)
       .auth(TEST_SERVER_API_KEY, { type: 'bearer' })
       .send(updateDto)
       .expect(statusChecker(200));
@@ -89,7 +89,7 @@ describe('CoffeesController (e2e)', () => {
 
     describe('failure', () => {
       it('should return 403 for unauthorized request', async () => {
-        const response: SafeResponse = await server.post('/coffees')
+        const response: SuperTestResponse = await server.post('/coffees')
           .send(createCoffeeDto)
           .expect(statusChecker(403));
 
@@ -110,7 +110,7 @@ describe('CoffeesController (e2e)', () => {
       it('should return one coffee by ID', async () => {
         const newCoffeeResult = await requestToCreateAuthorized(createCoffeeDto);
 
-        const responseToGet: SafeResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
+        const responseToGet: SuperTestResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
           .expect(statusChecker(200));
 
         parseResponseDataWithTemplate(responseToGet, newCoffeeResult);
@@ -121,7 +121,7 @@ describe('CoffeesController (e2e)', () => {
       it('should response with error for wrong ID (in range of signed 4-byte integer)', async () => {
         const wrongId = maxNumber(4, true);
 
-        const { body: foundCoffee }: SafeResponse = await server.get(`/coffees/${wrongId}`)
+        const { body: foundCoffee }: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
           .expect(statusChecker(404));
 
         assertObject(foundCoffee);
@@ -132,7 +132,7 @@ describe('CoffeesController (e2e)', () => {
       it('should response with error for wrong ID (unsupported by database)', async () => {
         const wrongId = Number.MAX_SAFE_INTEGER;
 
-        const { body: foundCoffee }: SafeResponse = await server.get(`/coffees/${wrongId}`)
+        const { body: foundCoffee }: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
           .expect(statusChecker(404));
 
         assertObject(foundCoffee);
@@ -165,7 +165,7 @@ describe('CoffeesController (e2e)', () => {
           requestToCreateAuthorized(secondCoffeeDto),
         ]);
 
-        const responseToGet: SafeResponse = await server.get('/coffees')
+        const responseToGet: SuperTestResponse = await server.get('/coffees')
           .expect(statusChecker(200));
 
         const foundCoffees = parseResponseDataAsArray(responseToGet);
@@ -195,21 +195,21 @@ describe('CoffeesController (e2e)', () => {
 
         // Database can (and most likely) has another items, so don't expect to obtain only those items we just created!
 
-        const responseToGetAllCoffees: SafeResponse = await server.get('/coffees')
+        const responseToGetAllCoffees: SuperTestResponse = await server.get('/coffees')
           .expect(statusChecker(200));
 
         const allCoffees = parseResponseDataAsArray(responseToGetAllCoffees);
 
         expect(allCoffees.length).toBeGreaterThanOrEqual(10);
 
-        const responseToGetFirstPage: SafeResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
+        const responseToGetFirstPage: SuperTestResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
           .expect(statusChecker(200));
 
         const firstPage = parseResponseDataAsArray(responseToGetFirstPage);
 
         expect(firstPage.length).toBe(5);
 
-        const responseToGetSecondPage: SafeResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
+        const responseToGetSecondPage: SuperTestResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
           .expect(statusChecker(200));
 
         const secondPage = parseResponseDataAsArray(responseToGetSecondPage);
@@ -257,7 +257,7 @@ describe('CoffeesController (e2e)', () => {
 
           await requestToUpdateAuthorized(newCoffeeResult, updateCoffeeDto);
 
-          const responseToGet: SafeResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
+          const responseToGet: SuperTestResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
             .expect(statusChecker(200));
 
           const foundCoffeeResult = parseResponseDataWithShape(responseToGet, newCoffeeResult);
@@ -283,7 +283,7 @@ describe('CoffeesController (e2e)', () => {
 
     describe('failure', () => {
       it('should return 403 for unauthorized request', async () => {
-        const response: SafeResponse = await server.patch('/coffees/123')
+        const response: SuperTestResponse = await server.patch('/coffees/123')
           .send({})
           .expect(statusChecker(403));
 
@@ -309,7 +309,7 @@ describe('CoffeesController (e2e)', () => {
       it('should return `true` after deletion', async () => {
         const newCoffeeResult = await requestToCreateAuthorized(createCoffeeDto);
 
-        const responseToDelete: SafeResponse = await server.delete(`/coffees/${newCoffeeResult.id}`)
+        const responseToDelete: SuperTestResponse = await server.delete(`/coffees/${newCoffeeResult.id}`)
           .auth(TEST_SERVER_API_KEY, { type: 'bearer' })
           .expect(statusChecker(200));
 
@@ -321,7 +321,7 @@ describe('CoffeesController (e2e)', () => {
 
     describe('failure', () => {
       it('should return 403 for unauthorized request', async () => {
-        const response: SafeResponse = await server.delete('/coffees/123')
+        const response: SuperTestResponse = await server.delete('/coffees/123')
           .send({})
           .expect(statusChecker(403));
 

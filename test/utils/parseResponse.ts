@@ -1,8 +1,8 @@
 import { ResponsePayload } from '../../src/common/entities/response-payload.entity';
 import { assertArray, assertObject, assertObjectShape } from './assertions';
-import { SafeResponse } from './types/SafeResponse';
+import { SuperTestResponse } from './types/SuperTest';
 
-export function parseResponseData (response: SafeResponse): unknown {
+export function parseResponseData (response: SuperTestResponse): unknown {
   const { body } = response;
 
   assertObject(body, ResponsePayload.Succeeded({}));
@@ -10,7 +10,7 @@ export function parseResponseData (response: SafeResponse): unknown {
   return body.data;
 }
 
-export function parseResponseDataAsArray (response: SafeResponse): unknown[] {
+export function parseResponseDataAsArray (response: SuperTestResponse): unknown[] {
   const data = parseResponseData(response);
 
   assertArray(data);
@@ -19,7 +19,7 @@ export function parseResponseDataAsArray (response: SafeResponse): unknown[] {
 }
 
 export function parseResponseDataWithShape <S extends object> (
-  response: SafeResponse, shape: S
+  response: SuperTestResponse, shape: S
 ): Record<keyof S, unknown> {
   const data = parseResponseData(response);
 
@@ -29,7 +29,7 @@ export function parseResponseDataWithShape <S extends object> (
 }
 
 export function parseResponseDataWithTemplate <T extends object> (
-  response: SafeResponse, template: T
+  response: SuperTestResponse, template: T
 ): Required<T> & Record<string, unknown> {
   const data = parseResponseData(response);
 
@@ -38,7 +38,7 @@ export function parseResponseDataWithTemplate <T extends object> (
   return data;
 }
 
-export function parseResponseError (response: SafeResponse): unknown {
+export function parseResponseError (response: SuperTestResponse): unknown {
   const { body } = response;
 
   assertObjectShape(body, ResponsePayload.Failed(''));
