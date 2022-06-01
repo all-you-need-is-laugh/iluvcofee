@@ -16,4 +16,3 @@ type Any2UnknownRecursively<T> =
         : T
 
 export type Any2Unknown<T> = IfAny<T, unknown, Any2UnknownRecursively<T>>;
-

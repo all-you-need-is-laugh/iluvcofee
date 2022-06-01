@@ -6,24 +6,27 @@ import { AppModule } from '../../src/app/app.module';
 import setupApp from '../../src/app/setupApp';
 import { CreateCoffeeDto } from '../../src/coffees/dto/create-coffee.dto';
 import { UpdateCoffeeDto } from '../../src/coffees/dto/update-coffee.dto';
-import { assertArray, assertObject } from '../utils/assertions';
+import { CoffeePublic } from '../../src/coffees/entities/coffee-public.entity';
+import { assertArray, assertNumber, assertObject } from '../utils/assertions';
 import { maxNumber } from '../utils/maxNumber';
 import {
   parseResponseData,
   parseResponseDataAsArray,
   parseResponseDataWithShape,
-  parseResponseDataWithTemplate
-} from '../utils/parseResponseData';
+  parseResponseDataWithTemplate,
+  parseResponseError
+} from '../utils/parseResponse';
 import { statusChecker } from '../utils/statusChecker';
 import { asObject } from '../utils/type-convertions';
-import { SafeResponse } from '../utils/types/SafeResponse';
+import { Shape } from '../utils/types/Shape';
+import { SuperTestRequestAuthParameters, SuperTestResponse, SuperTestServer } from '../utils/types/SuperTest';
 
 const createCoffeeDto: CreateCoffeeDto = {
   name: 'New Coffee Name',
   brand: 'New Coffee Brand',
   flavors: [ 'new', 'coffee' ]
 };
-const updateCoffeeBasicDto: UpdateCoffeeDto = {
+const updateCoffeeDtoTemplate: UpdateCoffeeDto = {
   name: 'Updated Coffee Name',
   brand: 'Updated Coffee Brand',
   flavors: [ 'updated', 'coffee' ]
@@ -31,7 +34,34 @@ const updateCoffeeBasicDto: UpdateCoffeeDto = {
 
 describe('CoffeesController (e2e)', () => {
   let app: INestApplication;
-  let server: supertest.SuperTest<supertest.Test>;
+  let server: SuperTestServer;
+  const TEST_SERVER_API_KEY = 'test_01234567890';
+  const authParams: SuperTestRequestAuthParameters = [ TEST_SERVER_API_KEY, { type: 'bearer' } ];
+
+  async function requestToCreateAuthorized (createDto: CreateCoffeeDto): Promise<CoffeePublic> {
+    const response: SuperTestResponse = await server.post('/coffees')
+      .auth(...authParams)
+      .send(createDto)
+      .expect(statusChecker(201));
+
+    const newCoffeeResult = parseResponseDataWithTemplate(response, createDto);
+
+    assertNumber(newCoffeeResult, 'id', 0);
+    assertNumber(newCoffeeResult, 'recommendations', 0);
+
+    return newCoffeeResult;
+  }
+
+  async function requestToUpdateAuthorized (
+    entityToUpdate: CoffeePublic, updateDto: Partial<UpdateCoffeeDto>
+  ): Promise<Shape<CoffeePublic>> {
+    const responseToUpdate: SuperTestResponse = await server.patch(`/coffees/${entityToUpdate.id}`)
+      .auth(...authParams)
+      .send(updateDto)
+      .expect(statusChecker(200));
+
+    return parseResponseDataWithShape(responseToUpdate, entityToUpdate);
+  }
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -54,14 +84,23 @@ describe('CoffeesController (e2e)', () => {
 
     describe('success', () => {
       it('should create coffee and return its full entity as result', async () => {
-        const response: SafeResponse = await server.post('/coffees')
-          .send(createCoffeeDto)
-          .expect(statusChecker(201));
-
-        const newCoffeeResult = parseResponseDataWithTemplate(response, createCoffeeDto);
-
-        expect(newCoffeeResult.id).toBeGreaterThanOrEqual(0);
+        await requestToCreateAuthorized(createCoffeeDto);
       });
+    });
+
+    describe('failure', () => {
+      it('should return 403 for unauthorized request', async () => {
+        const response: SuperTestResponse = await server.post('/coffees')
+          .send(createCoffeeDto)
+          .expect(statusChecker(403));
+
+        const error = parseResponseError(response);
+
+        expect(error).toBe('Forbidden resource');
+      });
+
+      // TODO: [validation] [tests] add test cases
+      it.todo('should return 400 for request with wrong body fields');
     });
   });
 
@@ -70,15 +109,9 @@ describe('CoffeesController (e2e)', () => {
     describe('success', () => {
 
       it('should return one coffee by ID', async () => {
-        const responseToCreate: SafeResponse = await server.post('/coffees')
-          .send(createCoffeeDto)
-          .expect(statusChecker(201));
+        const newCoffeeResult = await requestToCreateAuthorized(createCoffeeDto);
 
-        const newCoffeeResult = parseResponseDataWithTemplate(responseToCreate, createCoffeeDto);
-
-        expect(newCoffeeResult.id).toBeGreaterThanOrEqual(1);
-
-        const responseToGet: SafeResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
+        const responseToGet: SuperTestResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
           .expect(statusChecker(200));
 
         parseResponseDataWithTemplate(responseToGet, newCoffeeResult);
@@ -89,23 +122,23 @@ describe('CoffeesController (e2e)', () => {
       it('should response with error for wrong ID (in range of signed 4-byte integer)', async () => {
         const wrongId = maxNumber(4, true);
 
-        const { body: foundCoffee }: SafeResponse = await server.get(`/coffees/${wrongId}`)
+        const response: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
           .expect(statusChecker(404));
 
-        assertObject(foundCoffee);
+        const error = parseResponseError(response);
 
-        expect(foundCoffee.error).toEqual(`Coffee #${wrongId} not found`);
+        expect(error).toEqual(`Coffee #${wrongId} not found`);
       });
 
       it('should response with error for wrong ID (unsupported by database)', async () => {
         const wrongId = Number.MAX_SAFE_INTEGER;
 
-        const { body: foundCoffee }: SafeResponse = await server.get(`/coffees/${wrongId}`)
+        const response: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
           .expect(statusChecker(404));
 
-        assertObject(foundCoffee);
+        const error = parseResponseError(response);
 
-        expect(foundCoffee.error).toEqual(`Coffee #${wrongId} not found`);
+        expect(error).toEqual(`Coffee #${wrongId} not found`);
       });
 
       // TODO: [validation] [tests] add test case
@@ -128,19 +161,12 @@ describe('CoffeesController (e2e)', () => {
           brand: 'Second Coffee Brand',
           flavors: [ 'second', 'coffee' ]
         };
-        const [ responseToFirstCreate, responseToSecondCreate ]: [SafeResponse, SafeResponse] = await Promise.all([
-          server.post('/coffees')
-            .send(firstCoffeeDto)
-            .expect(statusChecker(201)),
-          server.post('/coffees')
-            .send(secondCoffeeDto)
-            .expect(statusChecker(201)),
+        const [ firstCreated, secondCreated ] = await Promise.all([
+          requestToCreateAuthorized(firstCoffeeDto),
+          requestToCreateAuthorized(secondCoffeeDto),
         ]);
 
-        const firstCreated = parseResponseDataWithTemplate(responseToFirstCreate, firstCoffeeDto);
-        const secondCreated = parseResponseDataWithTemplate(responseToSecondCreate, secondCoffeeDto);
-
-        const responseToGet: SafeResponse = await server.get('/coffees')
+        const responseToGet: SuperTestResponse = await server.get('/coffees')
           .expect(statusChecker(200));
 
         const foundCoffees = parseResponseDataAsArray(responseToGet);
@@ -164,29 +190,27 @@ describe('CoffeesController (e2e)', () => {
               flavors: [ `${index}-nth`, 'coffee' ]
             };
 
-            return server.post('/coffees')
-              .send(coffeeDto)
-              .expect(statusChecker(201));
+            return requestToCreateAuthorized(coffeeDto);
           })
         );
 
         // Database can (and most likely) has another items, so don't expect to obtain only those items we just created!
 
-        const responseToGetAllCoffees: SafeResponse = await server.get('/coffees')
+        const responseToGetAllCoffees: SuperTestResponse = await server.get('/coffees')
           .expect(statusChecker(200));
 
         const allCoffees = parseResponseDataAsArray(responseToGetAllCoffees);
 
         expect(allCoffees.length).toBeGreaterThanOrEqual(10);
 
-        const responseToGetFirstPage: SafeResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
+        const responseToGetFirstPage: SuperTestResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
           .expect(statusChecker(200));
 
         const firstPage = parseResponseDataAsArray(responseToGetFirstPage);
 
         expect(firstPage.length).toBe(5);
 
-        const responseToGetSecondPage: SafeResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
+        const responseToGetSecondPage: SuperTestResponse = await server.get(`/coffees?limit=${PAGE_SIZE}`)
           .expect(statusChecker(200));
 
         const secondPage = parseResponseDataAsArray(responseToGetSecondPage);
@@ -204,18 +228,9 @@ describe('CoffeesController (e2e)', () => {
     describe('and result', () => {
       const dynamicIt = (updateField: string, updateCoffeeDto: Partial<UpdateCoffeeDto>) =>
         it(`should be full updated entity (updating ${updateField})`, async () => {
-          const responseToCreate: SafeResponse = await server.post('/coffees')
-            .send(createCoffeeDto)
-            .expect(statusChecker(201));
+          const newCoffeeResult = await requestToCreateAuthorized(createCoffeeDto);
 
-          const newCoffeeResult = parseResponseDataWithTemplate(responseToCreate, createCoffeeDto);
-          expect(newCoffeeResult.id).toBeGreaterThanOrEqual(1);
-
-          const responseToUpdate: SafeResponse = await server.patch(`/coffees/${newCoffeeResult.id}`)
-            .send(updateCoffeeDto)
-            .expect(statusChecker(200));
-
-          const updatedCoffeeResult = parseResponseDataWithShape(responseToUpdate, newCoffeeResult);
+          const updatedCoffeeResult = await requestToUpdateAuthorized(newCoffeeResult, updateCoffeeDto);
 
           assertArray(updatedCoffeeResult.flavors);
           updatedCoffeeResult.flavors.sort();
@@ -229,28 +244,21 @@ describe('CoffeesController (e2e)', () => {
           assertObject(updatedCoffeeResult, expected);
         });
 
-      for (const key of Object.keys(updateCoffeeBasicDto)) {
+      for (const key of Object.keys(updateCoffeeDtoTemplate)) {
         const dtoKey = key as keyof UpdateCoffeeDto;
-        dynamicIt(dtoKey, { [dtoKey]: updateCoffeeBasicDto[dtoKey] });
+        dynamicIt(dtoKey, { [dtoKey]: updateCoffeeDtoTemplate[dtoKey] });
       }
-      dynamicIt('all fields', updateCoffeeBasicDto);
+      dynamicIt('all fields', updateCoffeeDtoTemplate);
     });
 
     describe('and changed value', () => {
       const dynamicIt = (updateField: string, updateCoffeeDto: Partial<UpdateCoffeeDto>) =>
         it(`should be full updated entity (updating ${updateField})`, async () => {
-          const responseToCreate: SafeResponse = await server.post('/coffees')
-            .send(createCoffeeDto)
-            .expect(statusChecker(201));
+          const newCoffeeResult = await requestToCreateAuthorized(createCoffeeDto);
 
-          const newCoffeeResult = parseResponseDataWithTemplate(responseToCreate, createCoffeeDto);
-          expect(newCoffeeResult.id).toBeGreaterThanOrEqual(1);
+          await requestToUpdateAuthorized(newCoffeeResult, updateCoffeeDto);
 
-          await server.patch(`/coffees/${newCoffeeResult.id}`)
-            .send(updateCoffeeDto)
-            .expect(statusChecker(200));
-
-          const responseToGet: SafeResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
+          const responseToGet: SuperTestResponse = await server.get(`/coffees/${newCoffeeResult.id}`)
             .expect(statusChecker(200));
 
           const foundCoffeeResult = parseResponseDataWithShape(responseToGet, newCoffeeResult);
@@ -267,14 +275,24 @@ describe('CoffeesController (e2e)', () => {
           assertObject(foundCoffeeResult, expected);
         });
 
-      for (const key of Object.keys(updateCoffeeBasicDto)) {
+      for (const key of Object.keys(updateCoffeeDtoTemplate)) {
         const dtoKey = key as keyof UpdateCoffeeDto;
-        dynamicIt(dtoKey, { [dtoKey]: updateCoffeeBasicDto[dtoKey] });
+        dynamicIt(dtoKey, { [dtoKey]: updateCoffeeDtoTemplate[dtoKey] });
       }
-      dynamicIt('all fields', updateCoffeeBasicDto);
+      dynamicIt('all fields', updateCoffeeDtoTemplate);
     });
 
     describe('failure', () => {
+      it('should return 403 for unauthorized request', async () => {
+        const response: SuperTestResponse = await server.patch('/coffees/123')
+          .send({})
+          .expect(statusChecker(403));
+
+        const error = parseResponseError(response);
+
+        expect(error).toBe('Forbidden resource');
+      });
+
       // TODO: [validation] [tests] add test case
       it.todo('should response with error for wrong ID (in range of signed 4-byte integer)');
 
@@ -290,15 +308,10 @@ describe('CoffeesController (e2e)', () => {
 
     describe('success', () => {
       it('should return `true` after deletion', async () => {
-        const responseToCreate: SafeResponse = await server.post('/coffees')
-          .send(createCoffeeDto)
-          .expect(statusChecker(201));
+        const newCoffeeResult = await requestToCreateAuthorized(createCoffeeDto);
 
-        const newCoffeeResult = parseResponseDataWithTemplate(responseToCreate, createCoffeeDto);
-
-        expect(newCoffeeResult.id).toBeGreaterThanOrEqual(1);
-
-        const responseToDelete: SafeResponse = await server.delete(`/coffees/${newCoffeeResult.id}`)
+        const responseToDelete: SuperTestResponse = await server.delete(`/coffees/${newCoffeeResult.id}`)
+          .auth(...authParams)
           .expect(statusChecker(200));
 
         const removeCoffeeResult = parseResponseData(responseToDelete);
@@ -308,6 +321,16 @@ describe('CoffeesController (e2e)', () => {
     });
 
     describe('failure', () => {
+      it('should return 403 for unauthorized request', async () => {
+        const response: SuperTestResponse = await server.delete('/coffees/123')
+          .send({})
+          .expect(statusChecker(403));
+
+        const error = parseResponseError(response);
+
+        expect(error).toBe('Forbidden resource');
+      });
+
       // TODO: [validation] [tests] add test case
       it.todo('should response with error for wrong ID (in range of signed 4-byte integer)');
 
@@ -319,3 +342,4 @@ describe('CoffeesController (e2e)', () => {
     });
   });
 });
+
