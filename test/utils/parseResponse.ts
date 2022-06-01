@@ -37,3 +37,11 @@ export function parseResponseDataWithTemplate <T extends object> (
 
   return data;
 }
+
+export function parseResponseError (response: SafeResponse): unknown {
+  const { body } = response;
+
+  assertObjectShape(body, ResponsePayload.Failed(''));
+
+  return body.error;
+}

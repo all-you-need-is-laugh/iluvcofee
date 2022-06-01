@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   Param,
   Patch,
   Post,
@@ -26,6 +25,7 @@ export class CoffeesController {
     return this.coffeesService.findAll(paginationQuery);
   }
 
+  @Public()
   @Get(':id')
   async findOne (@Param('id') id: number): Promise<CoffeePublic> {
     return this.coffeesService.findOne(id);
@@ -42,7 +42,6 @@ export class CoffeesController {
   }
 
   @Delete(':id')
-  @Header('content-type', 'application/json; charset=utf-8')
   async remove (@Param('id') id: number): Promise<boolean> {
     return this.coffeesService.remove(id);
   }
