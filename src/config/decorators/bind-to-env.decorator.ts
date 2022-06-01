@@ -35,6 +35,7 @@ export function BindToEnv (decoratorGenerator: DecoratorGenerator): DecoratorGen
     }
 
     const messageGenerator = (args: ValidationArguments) => {
+      // FIXME: [tests] [config] throw (clear) error if `envVarName` is empty
       const envVarName = Reflect.getMetadata(METADATA_ENV_VARS_KEY, args.object, args.property);
 
       const validationMetadataStorage = getMetadataStorage();

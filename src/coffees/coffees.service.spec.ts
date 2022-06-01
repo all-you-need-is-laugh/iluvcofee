@@ -69,17 +69,20 @@ describe('CoffeesService', () => {
       expect(foundCoffee).toMatchObject({ ...newCoffee, flavors: [ ...newCoffee.flavors ] });
     });
 
-    it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
-      const absentId = maxNumber(4, true);
+    it('should throw error for wrong ID (in range of signed 4-byte integer)', async () => {
+      const wrongId = maxNumber(4, true);
 
-      await checkRejection(() => coffeesService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
+      await checkRejection(() => coffeesService.findOne(wrongId), `Coffee #${wrongId} not found`, NotFoundException);
     });
 
-    it('should throw error for absent ID (out of range)', async () => {
-      const absentId = Number.MAX_SAFE_INTEGER;
+    it('should throw error for wrong ID (out of range)', async () => {
+      const wrongId = Number.MAX_SAFE_INTEGER;
 
-      await checkRejection(() => coffeesService.findOne(absentId), `Coffee #${absentId} not found`, NotFoundException);
+      await checkRejection(() => coffeesService.findOne(wrongId), `Coffee #${wrongId} not found`, NotFoundException);
     });
+
+    // TODO: [tests] add test case
+    it.todo('should throw error for wrong ID (negative value)');
   });
 
   describe('findAll', () => {
@@ -112,9 +115,10 @@ describe('CoffeesService', () => {
       expect(foundSecondCoffee).toMatchObject({ ...secondCreated, flavors: [ ...secondCreated.flavors ] });
     });
 
+    // TODO: [tests]
     it.todo('should return not more items than specified in `limit` pagination parameter');
 
-    // Implement it after any parent entity for Coffee will be added
+    // TODO: [tests] Implement it after any parent entity for Coffee will be added
     it.todo('should return different items according to `offset` pagination parameter');
   });
 
@@ -169,25 +173,28 @@ describe('CoffeesService', () => {
     });
 
     describe('failure', () => {
-      it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
-        const absentId = maxNumber(4, true);
+      it('should throw error for wrong ID (in range of signed 4-byte integer)', async () => {
+        const wrongId = maxNumber(4, true);
 
         await checkRejection(
-          () => coffeesService.update(absentId, updateCoffeeDto),
-            `Coffee #${absentId} not found`,
+          () => coffeesService.update(wrongId, updateCoffeeDto),
+            `Coffee #${wrongId} not found`,
             NotFoundException
         );
       });
 
-      it('should throw error for absent ID (out of range)', async () => {
-        const absentId = Number.MAX_SAFE_INTEGER;
+      it('should throw error for wrong ID (out of range)', async () => {
+        const wrongId = Number.MAX_SAFE_INTEGER;
 
         await checkRejection(
-          () => coffeesService.update(absentId, updateCoffeeDto),
-            `Coffee #${absentId} not found`,
+          () => coffeesService.update(wrongId, updateCoffeeDto),
+            `Coffee #${wrongId} not found`,
             NotFoundException
         );
       });
+
+      // TODO: [tests] add test case
+      it.todo('should throw error for wrong ID (negative value)');
     });
   });
 
@@ -198,16 +205,19 @@ describe('CoffeesService', () => {
       expect(await coffeesService.remove(newCoffee.id)).toBe(true);
     });
 
-    it('should throw error for absent ID (in range of signed 4-byte integer)', async () => {
-      const absentId = maxNumber(4, true);
+    it('should throw error for wrong ID (in range of signed 4-byte integer)', async () => {
+      const wrongId = maxNumber(4, true);
 
-      expect(await coffeesService.remove(absentId)).toBe(false);
+      expect(await coffeesService.remove(wrongId)).toBe(false);
     });
 
-    it('should throw error for absent ID (out of range)', async () => {
-      const absentId = Number.MAX_SAFE_INTEGER;
+    it('should throw error for wrong ID (out of range)', async () => {
+      const wrongId = Number.MAX_SAFE_INTEGER;
 
-      expect(await coffeesService.remove(absentId)).toBe(false);
+      expect(await coffeesService.remove(wrongId)).toBe(false);
     });
+
+    // TODO: [tests] add test case
+    it.todo('should throw error for wrong ID (negative value)');
   });
 });
