@@ -141,6 +141,17 @@ describe('CoffeesController (e2e)', () => {
         expect(error).toEqual(`Coffee #${wrongId} not found`);
       });
 
+      it('should response with error for wrong ID (not a number fully - validation error)', async () => {
+        const wrongId = `1hi`;
+
+        const response: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
+          .expect(statusChecker(400));
+
+        const error = parseResponseError(response);
+
+        expect(error).toEqual(`Wrong param "id": ${wrongId}`);
+      });
+
       // TODO: [validation] [tests] add test case
       it.todo('should response with error for wrong ID (negative value - validation error)');
     });
