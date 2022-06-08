@@ -10,6 +10,7 @@
     "forceConsistentCasingInFileNames": false,
     "incremental": true,
     "isolatedModules": true,
+    "lib": [ "ESNext" ],
     "module": "commonjs",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
@@ -23,7 +24,7 @@
     "sourceMap": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "target": "es2017",
+    "target": "ESNext",
     "useUnknownInCatchVariables": true
   }
 }

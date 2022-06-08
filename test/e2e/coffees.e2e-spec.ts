@@ -89,7 +89,18 @@ describe('CoffeesController (e2e)', () => {
     });
 
     describe('failure', () => {
-      it('should return 403 for unauthorized request', async () => {
+      const createWithWrongBodyCheck = async (wrongBody: Record<string, unknown>, message: string) => {
+        const response: SuperTestResponse = await server.post('/coffees')
+          .auth(...authParams)
+          .send(wrongBody)
+          .expect(statusChecker(400));
+
+        const error = parseResponseError(response);
+
+        expect(error).toEqual(message);
+      };
+
+      it('should respond with status 403 for unauthorized request', async () => {
         const response: SuperTestResponse = await server.post('/coffees')
           .send(createCoffeeDto)
           .expect(statusChecker(403));
@@ -99,8 +110,40 @@ describe('CoffeesController (e2e)', () => {
         expect(error).toBe('Forbidden resource');
       });
 
-      // TODO: [validation] [tests] add test cases
-      it.todo('should return 400 for request with wrong body fields');
+      it(`should respond with status 400 for body with unknown field`, async () => {
+        await createWithWrongBodyCheck(
+          { ...createCoffeeDto, unknownField: 'unknown value' },
+          `body field "unknownField" should not exist (passed value: "unknown value")`
+        );
+      });
+
+      it('should respond with status 400 for absent body', async () => {
+        const response: SuperTestResponse = await server.post('/coffees')
+          .auth(...authParams)
+          .expect(statusChecker(400));
+
+        const error = parseResponseError(response);
+
+        expect(error).toEqual('body field "brand" must be a string (passed value: undefined)');
+      });
+
+      describe('should respond with status 400 for body with absent mandatory field', () => {
+        // This object protects us from forgetting to test a new field in CreateCoffeeDto
+        const errorMessages: Record<keyof CreateCoffeeDto, string> = {
+          brand: `body field "brand" must be a string (passed value: undefined)`,
+          flavors: `each value in body field "flavors" must be a string (passed value: undefined)`,
+          name: `body field "name" must be a string (passed value: undefined)`
+        };
+
+        for (const key of Object.keys(createCoffeeDto)) {
+          const dtoKey = key as keyof UpdateCoffeeDto;
+
+          it(dtoKey, async () => {
+            await createWithWrongBodyCheck({ ...createCoffeeDto, [dtoKey]: undefined }, errorMessages[dtoKey]);
+          });
+        }
+      });
+
     });
   });
 
@@ -119,30 +162,46 @@ describe('CoffeesController (e2e)', () => {
     });
 
     describe('failure', () => {
-      it('should response with error for wrong ID (in range of signed 4-byte integer)', async () => {
+      const getByWrongIdCheck = async (wrongId: number | string, status: number, message: string) => {
+        const response: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
+          .expect(statusChecker(status));
+
+        const error = parseResponseError(response);
+
+        expect(error).toEqual(message);
+      };
+
+      it('should respond with error for wrong ID (in range of signed 4-byte integer - not found)', async () => {
         const wrongId = maxNumber(4, true);
 
-        const response: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
-          .expect(statusChecker(404));
-
-        const error = parseResponseError(response);
-
-        expect(error).toEqual(`Coffee #${wrongId} not found`);
+        await getByWrongIdCheck(wrongId, 404, `Coffee #${wrongId} not found`);
       });
 
-      it('should response with error for wrong ID (unsupported by database)', async () => {
+      it('should respond with error for wrong ID (unsupported by database - not found)', async () => {
         const wrongId = Number.MAX_SAFE_INTEGER;
 
-        const response: SuperTestResponse = await server.get(`/coffees/${wrongId}`)
-          .expect(statusChecker(404));
-
-        const error = parseResponseError(response);
-
-        expect(error).toEqual(`Coffee #${wrongId} not found`);
+        await getByWrongIdCheck(wrongId, 404, `Coffee #${wrongId} not found`);
       });
 
-      // TODO: [validation] [tests] add test case
-      it.todo('should response with error for wrong ID (negative value - validation error)');
+      it('should respond with error for wrong ID (not a number fully - validation error)', async () => {
+        await getByWrongIdCheck('1hi', 400, `parameter "id" must be an integer number (passed value: "1hi")`);
+      });
+
+      it('should respond with error for wrong ID (negative value - validation error)', async () => {
+        await getByWrongIdCheck(-1, 400, `parameter "id" must not be less than 0 (passed value: "-1")`);
+      });
+
+      it('should respond with error for wrong ID (float value - validation error)', async () => {
+        await getByWrongIdCheck(123.456, 400, `parameter "id" must be an integer number (passed value: "123.456")`);
+      });
+
+      it('should respond with error for wrong ID (NaN - validation error)', async () => {
+        await getByWrongIdCheck(NaN, 400, `parameter "id" must be an integer number (passed value: "NaN")`);
+      });
+
+      it('should respond with error for wrong ID (Infinity - validation error)', async () => {
+        await getByWrongIdCheck(Infinity, 400, `parameter "id" must be an integer number (passed value: "Infinity")`);
+      });
     });
   });
 
@@ -283,7 +342,7 @@ describe('CoffeesController (e2e)', () => {
     });
 
     describe('failure', () => {
-      it('should return 403 for unauthorized request', async () => {
+      it('should respond with status 403 for unauthorized request', async () => {
         const response: SuperTestResponse = await server.patch('/coffees/123')
           .send({})
           .expect(statusChecker(403));
@@ -293,37 +352,95 @@ describe('CoffeesController (e2e)', () => {
         expect(error).toBe('Forbidden resource');
       });
 
-      // TODO: [validation] [tests] add test case
-      it.todo('should response with error for wrong ID (in range of signed 4-byte integer)');
+      describe('should respond with error for wrong ID', () => {
+        const updateByWrongIdCheck = async (wrongId: number | string, status: number, message: string) => {
+          const response: SuperTestResponse = await server.patch(`/coffees/${wrongId}`)
+            .auth(...authParams)
+            .expect(statusChecker(status));
 
-      // TODO: [validation] [tests] add test case
-      it.todo('should response with error for wrong ID (unsupported by database)');
+          const error = parseResponseError(response);
 
-      // TODO: [validation] [tests] add test case
-      it.todo('should response with error for wrong ID (negative value - validation error)');
+          expect(error).toEqual(message);
+        };
+
+        it('in range of signed 4-byte integer - not found', async () => {
+          const wrongId = maxNumber(4, true);
+
+          await updateByWrongIdCheck(wrongId, 404, `Coffee #${wrongId} not found`);
+        });
+
+        it('unsupported by database - not found', async () => {
+          const wrongId = Number.MAX_SAFE_INTEGER;
+
+          await updateByWrongIdCheck(wrongId, 404, `Coffee #${wrongId} not found`);
+        });
+
+        it('not a number fully - validation error', async () => {
+          await updateByWrongIdCheck('1hi', 400, `parameter "id" must be an integer number (passed value: "1hi")`);
+        });
+
+        it('negative value - validation error', async () => {
+          await updateByWrongIdCheck(-1, 400, `parameter "id" must not be less than 0 (passed value: "-1")`);
+        });
+
+        it('float value - validation error', async () => {
+          await updateByWrongIdCheck(
+            123.456,
+            400,
+            `parameter "id" must be an integer number (passed value: "123.456")`
+          );
+        });
+
+        it('NaN - validation error', async () => {
+          await updateByWrongIdCheck(NaN, 400, `parameter "id" must be an integer number (passed value: "NaN")`);
+        });
+
+        it('Infinity - validation error', async () => {
+          await updateByWrongIdCheck(
+            Infinity,
+            400,
+            `parameter "id" must be an integer number (passed value: "Infinity")`
+          );
+        });
+      });
     });
   });
 
   describe('[DELETE] /coffees/:id', () => {
 
     describe('success', () => {
-      it('should return `true` after deletion', async () => {
-        const newCoffeeResult = await requestToCreateAuthorized(createCoffeeDto);
-
-        const responseToDelete: SuperTestResponse = await server.delete(`/coffees/${newCoffeeResult.id}`)
+      const deleteByValidIdCheck = async (id: number, result: boolean) => {
+        const response: SuperTestResponse = await server.delete(`/coffees/${id}`)
           .auth(...authParams)
           .expect(statusChecker(200));
 
-        const removeCoffeeResult = parseResponseData(responseToDelete);
+        const removeCoffeeResult = parseResponseData(response);
 
-        expect(removeCoffeeResult).toBe(true);
+          expect(removeCoffeeResult).toBe(result);
+      };
+
+      it('should return `true` after deletion', async () => {
+        const newCoffeeResult = await requestToCreateAuthorized(createCoffeeDto);
+
+        await deleteByValidIdCheck(newCoffeeResult.id, true);
+      });
+
+      it('should return `false` for any valid ID (in range of signed 4-byte integer)', async () => {
+        const validId = maxNumber(4, true);
+
+        await deleteByValidIdCheck(validId, false);
+      });
+
+      it('should return `false` for any valid ID (unsupported by database)', async () => {
+        const validId = Number.MAX_SAFE_INTEGER;
+
+        await deleteByValidIdCheck(validId, false);
       });
     });
 
     describe('failure', () => {
-      it('should return 403 for unauthorized request', async () => {
+      it('should respond with status 403 for unauthorized request', async () => {
         const response: SuperTestResponse = await server.delete('/coffees/123')
-          .send({})
           .expect(statusChecker(403));
 
         const error = parseResponseError(response);
@@ -331,14 +448,45 @@ describe('CoffeesController (e2e)', () => {
         expect(error).toBe('Forbidden resource');
       });
 
-      // TODO: [validation] [tests] add test case
-      it.todo('should response with error for wrong ID (in range of signed 4-byte integer)');
+      describe('should respond with error for wrong ID', () => {
+        const deleteByWrongIdCheck = async (wrongId: number | string, status: number, message: string) => {
+          const response: SuperTestResponse = await server.delete(`/coffees/${wrongId}`)
+            .auth(...authParams)
+            .expect(statusChecker(status));
 
-      // TODO: [validation] [tests] add test case
-      it.todo('should response with error for wrong ID (unsupported by database)');
+          const error = parseResponseError(response);
 
-      // TODO: [validation] [tests] add test case
-      it.todo('should response with error for wrong ID (negative value - validation error)');
+          expect(error).toEqual(message);
+        };
+
+        it('not a number fully - validation error', async () => {
+          await deleteByWrongIdCheck('1hi', 400, `parameter "id" must be an integer number (passed value: "1hi")`);
+        });
+
+        it('negative value - validation error', async () => {
+          await deleteByWrongIdCheck(-1, 400, `parameter "id" must not be less than 0 (passed value: "-1")`);
+        });
+
+        it('float value - validation error', async () => {
+          await deleteByWrongIdCheck(
+            123.456,
+            400,
+            `parameter "id" must be an integer number (passed value: "123.456")`
+          );
+        });
+
+        it('NaN - validation error', async () => {
+          await deleteByWrongIdCheck(NaN, 400, `parameter "id" must be an integer number (passed value: "NaN")`);
+        });
+
+        it('Infinity - validation error', async () => {
+          await deleteByWrongIdCheck(
+            Infinity,
+            400,
+            `parameter "id" must be an integer number (passed value: "Infinity")`
+          );
+        });
+      });
     });
   });
 });
