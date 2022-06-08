@@ -125,6 +125,7 @@ module.exports = {
         'metatype',
         'nullable',
         'orm',
+        'paramtype',
         'postgres',
         'promisify',
         'redis',
