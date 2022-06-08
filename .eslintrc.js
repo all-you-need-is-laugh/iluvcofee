@@ -40,6 +40,7 @@ module.exports = {
     'dot-notation': 'off',
     '@typescript-eslint/dot-notation': ['error'],
     'eol-last': ['warn', 'always'],
+    'eqeqeq': 'error',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'error',
     'import/named': 'error',
