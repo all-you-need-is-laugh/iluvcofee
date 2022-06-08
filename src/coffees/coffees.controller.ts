@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { ParseIntPipe } from '../common/pipes/parse-int.pipe';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
+import { IdCoffeeDto } from './dto/id-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { CoffeePublic } from './entities/coffee-public.entity';
 
@@ -28,7 +28,7 @@ export class CoffeesController {
 
   @Public()
   @Get(':id')
-  async findOne (@Param('id', ParseIntPipe) id: number): Promise<CoffeePublic> {
+  async findOne (@Param() { id }: IdCoffeeDto): Promise<CoffeePublic> {
     return this.coffeesService.findOne(id);
   }
 
@@ -38,17 +38,17 @@ export class CoffeesController {
   }
 
   @Patch(':id')
-  async update (@Param('id') id: number, @Body() updateCoffeeDto: UpdateCoffeeDto): Promise<CoffeePublic> {
+  async update (@Param() { id }: IdCoffeeDto, @Body() updateCoffeeDto: UpdateCoffeeDto): Promise<CoffeePublic> {
     return this.coffeesService.update(id, updateCoffeeDto);
   }
 
   @Delete(':id')
-  async remove (@Param('id') id: number): Promise<boolean> {
+  async remove (@Param() { id }: IdCoffeeDto): Promise<boolean> {
     return this.coffeesService.remove(id);
   }
 
   @Post(':id/recommend')
-  async recommend (@Param('id') id: number): Promise<boolean> {
+  async recommend (@Param() { id }: IdCoffeeDto): Promise<boolean> {
     return this.coffeesService.recommendCoffee(id);
   }
 }

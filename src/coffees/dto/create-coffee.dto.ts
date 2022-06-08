@@ -1,12 +1,4 @@
-import { IsString } from 'class-validator';
+import { OmitType } from '@nestjs/mapped-types';
+import { FullCoffeeDto } from './full-coffee.dto';
 
-export class CreateCoffeeDto {
-  @IsString()
-  readonly name: string;
-
-  @IsString()
-  readonly brand: string;
-
-  @IsString({ each: true })
-  readonly flavors: string[];
-}
+export class CreateCoffeeDto extends OmitType(FullCoffeeDto, [ 'id', 'recommendations' ] as const) { }
