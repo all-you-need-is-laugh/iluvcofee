@@ -1,5 +1,9 @@
 {
   "collection": "@nestjs/schematics",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "plugins": ["@nestjs/swagger/plugin"]
+  },
   "entryFile": "app/main",
   "generateOptions": {
     "spec": false

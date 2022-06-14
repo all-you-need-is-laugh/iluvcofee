@@ -78,6 +78,14 @@ module.exports = {
       {
         selector: 'ImportDeclaration[source.value=@nestjs/typeorm] > ImportSpecifier[imported.name="TypeOrmModule"]',
         message: 'TypeOrmModule from @nestjs/typeorm is forbidden - use SharedTypeOrmModule instead'
+      },
+      {
+        selector: 'ImportDeclaration[source.value=@nestjs/swagger] > ImportSpecifier[imported.name="OmitType"]',
+        message: 'OmitType from @nestjs/swagger is forbidden - use PickType with array of needed fields instead'
+      },
+      {
+        selector: 'ImportDeclaration[source.value=@nestjs/mapped-types] > ImportSpecifier[imported.name="OmitType"]',
+        message: 'OmitType from @nestjs/mapped-types is forbidden - use PickType with array of needed fields instead'
       }
     ],
     'no-undef': 'error',
