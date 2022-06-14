@@ -10,15 +10,25 @@ name: Lint Code Base
 # Documentation:
 # https://help.github.com/en/articles/workflow-syntax-for-github-actions
 #
+# Great tricks:
+# https://yonatankra.com/7-github-actions-tricks-i-wish-i-knew-before-i-started
+#
 
-#############################
-# Start the job on all push #
-#############################
+#############################################################################
+# Start the job on push to `main` branch or on pull request created/updated #
+#############################################################################
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
+##########################################################
+# Stop previously running job if another new one started #
+##########################################################
+concurrency:
+  group: ci-tests-${{ github.ref }}-1
+  cancel-in-progress: true
 
 ###############
 # Set the Job #
