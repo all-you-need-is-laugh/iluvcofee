@@ -55,7 +55,9 @@
         "- create empty migration          ": "yarn typeorm:migration:create src/typeorm/migrations/Change_Schema_Manually",
         "- generate migration from entities": "yarn typeorm:migration:generate src/typeorm/migrations/Added_Some_Entity",
         "- run pending migrations          ": "yarn typeorm:migration:run",
-        "- revert migrations               ": "yarn typeorm:migration:revert"
+        "- revert migrations               ": "yarn typeorm:migration:revert",
+        "------------------------------------------\n  GITHUB ACTIONS SCRIPTS": "----------------------------------------",
+        "gha": "act || echo '\nSee for more details: https://github.com/nektos/act\n'"
     },
     "dependencies": {
         "@nestjs/common": "^8.0.0",
