@@ -1,4 +1,4 @@
-import { OmitType } from '@nestjs/swagger';
+import { PickType } from '@nestjs/swagger';
 import { FullCoffeeDto } from './full-coffee.dto';
 
-export class CreateCoffeeDto extends OmitType(FullCoffeeDto, [ 'id', 'recommendations' ] as const) { }
+export class CreateCoffeeDto extends PickType(FullCoffeeDto, [ 'brand', 'flavors', 'name' ] as const) { }
