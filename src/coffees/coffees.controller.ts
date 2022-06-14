@@ -8,6 +8,7 @@ import {
   Post,
   Query
 } from '@nestjs/common';
+import { ApiForbiddenResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '../common/decorators/public.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CoffeesService } from './coffees.service';
@@ -16,6 +17,7 @@ import { IdCoffeeDto } from './dto/id-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { CoffeePublic } from './entities/coffee-public.entity';
 
+@ApiTags('coffees')
 @Controller('coffees')
 export class CoffeesController {
   constructor (private readonly coffeesService: CoffeesService) {}
@@ -32,6 +34,8 @@ export class CoffeesController {
     return this.coffeesService.findOne(id);
   }
 
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiResponse({ status: 200, description: 'OK' })
   @Post()
   async create (@Body() createCoffeeDto: CreateCoffeeDto): Promise<CoffeePublic> {
     return this.coffeesService.create(createCoffeeDto);

@@ -4,7 +4,7 @@ interface ResponseChecker {
   (res: Response): boolean
 }
 
-export const statusChecker = (expectedStatus: number, textMaxLength = 100): ResponseChecker => (res) => {
+export const statusChecker = (expectedStatus: number, textMaxLength = 200): ResponseChecker => (res) => {
   const { status, text } = res;
   if (status === expectedStatus) return true;
 
