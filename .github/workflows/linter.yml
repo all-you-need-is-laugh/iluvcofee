@@ -35,7 +35,7 @@ concurrency:
 ###############
 jobs:
   build:
-    if: github.event.pull_request.draft == false
+    if: github.event.act == true || github.event.pull_request.draft == false
     # Name the Job
     name: Lint Code Base
     # Set the agent to run on
