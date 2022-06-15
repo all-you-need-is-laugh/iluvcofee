@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
+
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { isPostgresError } from '../common/utils/isPostgresError';
 import { Event } from '../events/entities/event.entity';

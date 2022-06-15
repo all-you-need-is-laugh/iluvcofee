@@ -1,5 +1,6 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { map, Observable } from 'rxjs'; // eslint-disable-line import/no-unresolved -- FIXME
+
 import { ResponsePayload } from '../entities/response-payload.entity';
 
 @Injectable()

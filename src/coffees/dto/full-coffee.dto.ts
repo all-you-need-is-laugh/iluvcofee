@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsString, Min } from 'class-validator';
+
 import { CoffeePublic } from '../entities/coffee-public.entity';
 
 export class FullCoffeeDto implements CoffeePublic {
