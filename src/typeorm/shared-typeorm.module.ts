@@ -2,6 +2,7 @@ import { DynamicModule } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 // eslint-disable-next-line no-restricted-syntax -- allow TypeOrmModule only here
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { SharedConfigModule } from '../config/shared-config.module';
 import typeOrmPgConfig from './config/typeorm.pg.config';
 

@@ -1,5 +1,6 @@
 import { ArgumentMetadata, Type, ValidationError, ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
 import { ConfigFactory, ConfigFactoryKeyHost, ConfigObject, registerAs } from '@nestjs/config';
+
 import NodeProcessEnv from './types/NodeProcessEnv';
 
 export class ConfigPipe<T> extends ValidationPipe {

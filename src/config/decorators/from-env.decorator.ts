@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { Expose, Transform } from 'class-transformer';
 import { IsNotEmpty } from 'class-validator';
+
 import { BindToEnv, METADATA_ENV_VARS_KEY, SimpleTransform } from './bind-to-env.decorator';
 
 // FIXME: [config] supports only 1 property depending on the same env var

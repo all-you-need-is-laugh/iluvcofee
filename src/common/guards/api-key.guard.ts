@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/commo
 import { ConfigType } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+
 import appConfig from '../../app/app.config';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 

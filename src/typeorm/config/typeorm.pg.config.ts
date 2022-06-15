@@ -1,5 +1,6 @@
 import { IsBoolean, IsPositive, MinLength } from 'class-validator';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+
 import { BindToEnv } from '../../config/decorators/bind-to-env.decorator';
 import { FromEnv } from '../../config/decorators/from-env.decorator';
 import registerConfig from '../../config/registerConfig';

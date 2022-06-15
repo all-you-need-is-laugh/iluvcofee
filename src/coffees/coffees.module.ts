@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { Event } from '../events/entities/event.entity';
 import { SharedTypeOrmModule } from '../typeorm/shared-typeorm.module';
 import { CoffeesController } from './coffees.controller';
