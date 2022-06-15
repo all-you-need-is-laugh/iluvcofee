@@ -4,6 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { isPostgresError } from '../common/utils/isPostgresError';
+import { withQueryRunner } from '../common/utils/withQueryRunner';
 import { Event } from '../events/entities/event.entity';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
@@ -83,36 +84,29 @@ export class CoffeesService {
       throw new NotFoundException(`Coffee #${id} not found`);
     }
 
-    const queryRunner = this.dataSource.createQueryRunner();
-
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
     // TODO: [refactor] Extract to some kind "perform event" method
     try {
-      coffee.recommendations++;
+      await withQueryRunner(this.dataSource, async (queryRunner) => {
+        coffee.recommendations++;
 
-      const recommendationEvent = new Event();
-      // TODO: [types] convert to enum
-      recommendationEvent.name = 'recommend_coffee';
-      // TODO: [types] convert to enum
-      recommendationEvent.type = 'coffee';
-      recommendationEvent.payload = { coffeeId: id };
+        const recommendationEvent = new Event();
+        // TODO: [types] convert to enum
+        recommendationEvent.name = 'recommend_coffee';
+        // TODO: [types] convert to enum
+        recommendationEvent.type = 'coffee';
+        recommendationEvent.payload = { coffeeId: id };
 
-      await queryRunner.manager.save(coffee);
-      await queryRunner.manager.save(recommendationEvent);
-
-      await queryRunner.commitTransaction();
+        // await queryRunner.manager.save(coffee);
+        await queryRunner.manager.save(coffee);
+        await queryRunner.manager.save(recommendationEvent);
+      });
 
       return true;
     } catch (err: unknown) {
       // TODO: [logger] replace with logger
       console.log('CoffeesService::recommendCoffee failed with', err);
-      await queryRunner.rollbackTransaction();
 
       return false;
-    } finally {
-      await queryRunner.release();
     }
   }
 
