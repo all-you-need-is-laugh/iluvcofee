@@ -4,7 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { isPostgresError } from '../common/utils/isPostgresError';
-import { withQueryRunner } from '../common/utils/withQueryRunner';
+import { withTransaction } from '../common/utils/withTransaction';
 import { Event } from '../events/entities/event.entity';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
@@ -86,7 +86,7 @@ export class CoffeesService {
 
     // TODO: [refactor] Extract to some kind "perform event" method
     try {
-      await withQueryRunner(this.dataSource, async (queryRunner) => {
+      await withTransaction(this.dataSource, async (queryRunner) => {
         coffee.recommendations++;
 
         const recommendationEvent = new Event();
