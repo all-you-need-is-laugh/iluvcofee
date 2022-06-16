@@ -27,7 +27,7 @@ export class ConfigPipe<T> extends ValidationPipe {
   }
 
   override async transform (value: unknown, metadata?: ArgumentMetadata): Promise<T> {
-    return super.transform(value, metadata || { type: 'custom', metatype: this.Constructor });
+    return await super.transform(value, metadata || { type: 'custom', metatype: this.Constructor });
   }
 }
 
