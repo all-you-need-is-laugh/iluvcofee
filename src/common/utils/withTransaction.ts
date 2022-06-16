@@ -1,14 +1,12 @@
 import { DataSource, QueryRunner } from 'typeorm';
+import isPostgresError from './isPostgresError';
 
 export interface ExecuteWithQueryRunner<T> {
   (qr: QueryRunner): Promise<T>
 }
 
-export async function withTransaction <T> (dataSource: DataSource , execute: ExecuteWithQueryRunner<T>): Promise<T>;
-export async function withTransaction <T> (queryRunner: QueryRunner , execute: ExecuteWithQueryRunner<T>): Promise<T>;
 export async function withTransaction <T> (
-  arg: DataSource | QueryRunner,
-  execute: ExecuteWithQueryRunner<T>
+  arg: DataSource | QueryRunner, execute: ExecuteWithQueryRunner<T>, retries = 5
 ): Promise<T> {
   const queryRunner = (arg instanceof DataSource) ? arg.createQueryRunner() : arg;
 
@@ -21,10 +19,16 @@ export async function withTransaction <T> (
     await queryRunner.commitTransaction();
 
     return result;
-  } catch (err: unknown) {
+  } catch (error: unknown) {
     await queryRunner.rollbackTransaction();
 
-    throw err;
+    if (retries > 1 && isPostgresError.TransactionAborted(error)) {
+      // Don't await retry Promise to make possible release of queryRunner in `finally` branch
+      // eslint-disable-next-line @typescript-eslint/return-await
+      return withTransaction(arg, execute, retries - 1);
+    }
+
+    throw error;
   } finally {
     // Release queryRunner only if we created it inside this function
     if (arg instanceof DataSource) {
