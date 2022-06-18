@@ -63,11 +63,10 @@ describe('CoffeesService', () => {
     });
 
     it('should create several coffees with the same flavors simultaneously', async () => {
-      const N = 5;
-      const commonFlavors = [ `test_first_${Date.now()}`, `test_second_${Date.now()}` ];
+      const N = 10;
 
+      const flavors = [ `test_first_${Date.now()}`, `test_second_${Date.now()}` ];
       await Promise.all(Array.from({ length: N }, async (_, index) => {
-        const flavors = [ ...commonFlavors, `test_third_${index}_${Date.now()}` ];
         const payload = { ...createCoffeeDto, name: `Test Coffee #${index}`, flavors };
         const newCoffee: CoffeePublic = await coffeesService.create(payload);
 
