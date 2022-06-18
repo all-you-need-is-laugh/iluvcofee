@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
@@ -38,7 +38,7 @@ export class CoffeesService {
   }
 
   async create (createCoffeeDto: CreateCoffeeDto): Promise<CoffeePublic> {
-    const coffee = await withTransaction(this.dataSource, async ({ manager }) => {
+    const coffee = await withTransaction(this.dataSource, async (manager) => {
       const flavors = await this.preloadFlavorsByName(createCoffeeDto.flavors, manager.getRepository(Flavor));
 
       const coffeeEntity = manager.create(Coffee, { ...createCoffeeDto, flavors });
@@ -52,7 +52,7 @@ export class CoffeesService {
     const { flavors: updateFlavors, ...updateRest } = updateCoffeeDto;
     const preloadDto: Partial<Coffee> = { id, ...updateRest };
 
-    await withTransaction(this.dataSource, async ({ manager }) => {
+    await withTransaction(this.dataSource, async (manager) => {
       if (updateFlavors) {
         preloadDto.flavors = await this.preloadFlavorsByName(updateFlavors, manager.getRepository(Flavor));
       }
@@ -96,7 +96,7 @@ export class CoffeesService {
       recommendationEvent.type = 'coffee';
       recommendationEvent.payload = { coffeeId: id };
 
-      await withTransaction(this.dataSource, async ({ manager }) => {
+      await withTransaction(this.dataSource, async (manager) => {
         await manager.save(coffee);
         await manager.save(recommendationEvent);
       });
