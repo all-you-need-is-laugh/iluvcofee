@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { isPostgresError } from '../common/utils/isPostgresError';
+import isPostgresError from '../common/utils/isPostgresError';
+import { withTransaction } from '../common/utils/withTransaction';
 import { Event } from '../events/entities/event.entity';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
@@ -16,8 +17,6 @@ export class CoffeesService {
   constructor (
     @InjectRepository(Coffee)
     private readonly coffeeRepository: Repository<Coffee>,
-    @InjectRepository(Flavor)
-    private readonly flavorRepository: Repository<Flavor>,
     @InjectConnection()
     private readonly dataSource: DataSource
   ) {}
@@ -39,40 +38,43 @@ export class CoffeesService {
   }
 
   async create (createCoffeeDto: CreateCoffeeDto): Promise<CoffeePublic> {
-    const flavors = await this.preloadFlavorsByName(createCoffeeDto.flavors);
+    const coffee = await withTransaction(this.dataSource, async (manager) => {
+      const flavors = await this.preloadFlavorsByName(createCoffeeDto.flavors, manager.getRepository(Flavor));
 
-    const coffee = await this.coffeeRepository.create({ ...createCoffeeDto, flavors });
-
-    await this.coffeeRepository.save(coffee);
+      const coffeeEntity = manager.create(Coffee, { ...createCoffeeDto, flavors });
+      return await manager.save(coffeeEntity);
+    });
 
     return this.formatCoffeeToPublic(coffee);
   }
 
   async update (id: number, updateCoffeeDto: UpdateCoffeeDto): Promise<CoffeePublic> {
-    let coffee: Coffee | undefined;
-
     const { flavors: updateFlavors, ...updateRest } = updateCoffeeDto;
     const preloadDto: Partial<Coffee> = { id, ...updateRest };
 
-    if (updateFlavors) {
-      preloadDto.flavors = await this.preloadFlavorsByName(updateFlavors);
-    }
-
-    try {
-      coffee = await this.coffeeRepository.preload(preloadDto);
-    } catch (error) {
-      if (!isPostgresError(error) || error.code !== '22003') {
-        throw error;
+    await withTransaction(this.dataSource, async (manager) => {
+      if (updateFlavors) {
+        preloadDto.flavors = await this.preloadFlavorsByName(updateFlavors, manager.getRepository(Flavor));
       }
-    }
 
-    if (!coffee) {
-      throw new NotFoundException(`Coffee #${id} not found`);
-    }
+      let coffee: Coffee | undefined;
 
-    await this.coffeeRepository.save(coffee);
+      try {
+        coffee = await manager.preload<Coffee>(Coffee, preloadDto);
+      } catch (error) {
+        if (!isPostgresError.OutOfRange(error)) {
+          throw error;
+        }
+      }
 
-    return this.findOne(id);
+      if (!coffee) {
+        throw new NotFoundException(`Coffee #${id} not found`);
+      }
+
+      await manager.save(coffee);
+    });
+
+    return await this.findOne(id);
   }
 
   // TODO: [tests] add tests for this method
@@ -82,11 +84,6 @@ export class CoffeesService {
     if (!coffee) {
       throw new NotFoundException(`Coffee #${id} not found`);
     }
-
-    const queryRunner = this.dataSource.createQueryRunner();
-
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
 
     // TODO: [refactor] Extract to some kind "perform event" method
     try {
@@ -99,20 +96,17 @@ export class CoffeesService {
       recommendationEvent.type = 'coffee';
       recommendationEvent.payload = { coffeeId: id };
 
-      await queryRunner.manager.save(coffee);
-      await queryRunner.manager.save(recommendationEvent);
-
-      await queryRunner.commitTransaction();
+      await withTransaction(this.dataSource, async (manager) => {
+        await manager.save(coffee);
+        await manager.save(recommendationEvent);
+      });
 
       return true;
-    } catch (err: unknown) {
+    } catch (error) {
       // TODO: [logger] replace with logger
-      console.log('CoffeesService::recommendCoffee failed with', err);
-      await queryRunner.rollbackTransaction();
+      console.log('CoffeesService::recommendCoffee failed with', error);
 
       return false;
-    } finally {
-      await queryRunner.release();
     }
   }
 
@@ -140,7 +134,7 @@ export class CoffeesService {
     try {
       coffee = await this.coffeeRepository.findOneBy({ id });
     } catch (error) {
-      if (!isPostgresError(error) || error.code !== '22003') {
+      if (!isPostgresError.OutOfRange(error)) {
         throw error;
       }
     }
@@ -156,15 +150,29 @@ export class CoffeesService {
     return { ...coffee, flavors: coffee.flavors.map(flavor =>  flavor.name) };
   }
 
-  private async preloadFlavorByName (name: string): Promise<Flavor> {
-    const existingFlavor = await this.flavorRepository.findOneBy({ name });
+  private async preloadFlavorByName (name: string, flavorRepository: Repository<Flavor>): Promise<Flavor> {
+    const existingFlavor = await flavorRepository.findOneBy({ name });
 
     if (existingFlavor) { return existingFlavor; }
 
-    return this.flavorRepository.create({ name });
+    const flavor = flavorRepository.create({ name });
+
+    try {
+      return await flavorRepository.save(flavor);
+    } catch (error) {
+      if (isPostgresError.DuplicateConstraint(error)) {
+        return flavor;
+      }
+
+      throw error;
+    }
   }
 
-  private async preloadFlavorsByName (names: string[]): Promise<Flavor[]> {
-    return await Promise.all(names.map(name => this.preloadFlavorByName(name)));
+  private async preloadFlavorsByName (names: string[], flavorRepository: Repository<Flavor>): Promise<Flavor[]> {
+    const uniqueNames = [ ...new Set(names) ];
+    if (uniqueNames.length !== names.length) {
+      throw new BadRequestException(`flavors array must not have duplicates`);
+    }
+    return await Promise.all(names.map(name => this.preloadFlavorByName(name, flavorRepository)));
   }
 }

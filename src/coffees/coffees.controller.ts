@@ -26,34 +26,34 @@ export class CoffeesController {
   @Public()
   @Get()
   async findAll (@Query() paginationQuery: PaginationQueryDto): Promise<CoffeePublic[]> {
-    return this.coffeesService.findAll(paginationQuery);
+    return await this.coffeesService.findAll(paginationQuery);
   }
 
   @Public()
   @Get(':id')
   async findOne (@Param() { id }: IdCoffeeDto): Promise<CoffeePublic> {
-    return this.coffeesService.findOne(id);
+    return await this.coffeesService.findOne(id);
   }
 
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiResponse({ status: 200, description: 'OK' })
   @Post()
   async create (@Body() createCoffeeDto: CreateCoffeeDto): Promise<CoffeePublic> {
-    return this.coffeesService.create(createCoffeeDto);
+    return await this.coffeesService.create(createCoffeeDto);
   }
 
   @Patch(':id')
   async update (@Param() { id }: IdCoffeeDto, @Body() updateCoffeeDto: UpdateCoffeeDto): Promise<CoffeePublic> {
-    return this.coffeesService.update(id, updateCoffeeDto);
+    return await this.coffeesService.update(id, updateCoffeeDto);
   }
 
   @Delete(':id')
   async remove (@Param() { id }: IdCoffeeDto): Promise<boolean> {
-    return this.coffeesService.remove(id);
+    return await this.coffeesService.remove(id);
   }
 
   @Post(':id/recommend')
   async recommend (@Param() { id }: IdCoffeeDto): Promise<boolean> {
-    return this.coffeesService.recommendCoffee(id);
+    return await this.coffeesService.recommendCoffee(id);
   }
 }

@@ -41,7 +41,6 @@
         "start:prod": "node dist/main",
         "------------------------------------------\n  UTILITY SCRIPTS": "----------------------------------------",
         "check-env": "node -e 'console.log(process.env)' | grep npm; ",
-        "demo": "echo \"Hello $npm_config_first $npm_config_last\"",
         "format": "yarn lint --fix",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
         "------------------------------------------\n  TYPEORM RELATED SCRIPTS": "----------------------------------------",

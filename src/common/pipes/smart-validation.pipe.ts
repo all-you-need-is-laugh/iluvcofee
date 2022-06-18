@@ -63,7 +63,7 @@ export class SmartValidationPipe extends ValidationPipe implements PipeTransform
   }
 
   override async transform (value: unknown, metadata: ArgumentMetadata): Promise<unknown> {
-    return this.transformationQueue.add(async () => {
+    return await this.transformationQueue.add(async () => {
       try {
         this.originalTransformingValue = value;
         this.paramType = metadata.type;

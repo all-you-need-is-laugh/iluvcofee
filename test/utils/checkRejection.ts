@@ -8,10 +8,10 @@ export const checkRejection: CheckRejection = async (fn, message, ErrorConstruct
   const checkMessagePromise = rejected.toHaveProperty('message', message);
 
   if (ErrorConstructor === undefined) {
-    return checkMessagePromise;
+    return await checkMessagePromise;
   }
 
-  return Promise.all([
+  return await Promise.all([
     rejected.toBeInstanceOf(ErrorConstructor),
     checkMessagePromise
   ]);

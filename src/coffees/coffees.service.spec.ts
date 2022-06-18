@@ -56,8 +56,25 @@ describe('CoffeesService', () => {
     it('should create coffee and return its full entity as result', async () => {
       const newCoffee: CoffeePublic = await coffeesService.create(createCoffeeDto);
 
+      // Flavors are assigned with spread value to emphasize that value should be with the same elements and not the
+      // same array
       expect(newCoffee).toMatchObject({ ...createCoffeeDto, flavors: [ ...createCoffeeDto.flavors ] });
       expect(newCoffee.id).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should create several coffees with the same flavors simultaneously', async () => {
+      const N = 10;
+
+      const flavors = [ `test_first_${Date.now()}`, `test_second_${Date.now()}` ];
+      await Promise.all(Array.from({ length: N }, async (_, index) => {
+        const payload = { ...createCoffeeDto, name: `Test Coffee #${index}`, flavors };
+        const newCoffee: CoffeePublic = await coffeesService.create(payload);
+
+        // Flavors are assigned with spread value to emphasize that value should be with the same elements and not the
+        // same array
+        expect(newCoffee).toMatchObject({ ...payload, flavors: [ ...flavors ] });
+        expect(newCoffee.id).toBeGreaterThanOrEqual(0);
+      }));
     });
   });
 
@@ -67,6 +84,8 @@ describe('CoffeesService', () => {
 
       const foundCoffee: CoffeePublic = await coffeesService.findOne(newCoffee.id);
 
+      // Flavors are assigned with spread value to emphasize that value should be with the same elements and not the
+      // same array
       expect(foundCoffee).toMatchObject({ ...newCoffee, flavors: [ ...newCoffee.flavors ] });
     });
 
@@ -111,8 +130,12 @@ describe('CoffeesService', () => {
       const foundFirstCoffee = foundCoffees.find(c => c.id === firstCreated.id);
       const foundSecondCoffee = foundCoffees.find(c => c.id === secondCreated.id);
 
+      // Flavors are assigned with spread value to emphasize that value should be with the same elements and not the
+      // same array
       expect(foundFirstCoffee).toMatchObject({ ...firstCreated, flavors: [ ...firstCreated.flavors ] });
 
+      // Flavors are assigned with spread value to emphasize that value should be with the same elements and not the
+      // same array
       expect(foundSecondCoffee).toMatchObject({ ...secondCreated, flavors: [ ...secondCreated.flavors ] });
     });
 
