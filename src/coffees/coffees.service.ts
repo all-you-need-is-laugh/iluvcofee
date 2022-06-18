@@ -169,6 +169,10 @@ export class CoffeesService {
   }
 
   private async preloadFlavorsByName (names: string[], flavorRepository: Repository<Flavor>): Promise<Flavor[]> {
+    const uniqueNames = [ ...new Set(names) ];
+    if (uniqueNames.length !== names.length) {
+      throw new BadRequestException(`flavors array must not have duplicates`);
+    }
     return await Promise.all(names.map(name => this.preloadFlavorByName(name, flavorRepository)));
   }
 }
