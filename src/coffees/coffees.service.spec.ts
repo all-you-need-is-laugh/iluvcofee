@@ -7,6 +7,7 @@ import { assertObject } from '../../test/utils/assertions';
 import { checkRejection } from '../../test/utils/checkRejection';
 import { maxNumber } from '../../test/utils/maxNumber';
 import { SharedConfigModule } from '../config/shared-config.module';
+import { Event } from '../events/entities/event.entity';
 import { SharedTypeOrmModule } from '../typeorm/shared-typeorm.module';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
@@ -36,7 +37,7 @@ describe('CoffeesService', () => {
       imports: [
         SharedConfigModule.forRoot(),
         SharedTypeOrmModule.forRoot(),
-        SharedTypeOrmModule.forFeature([ Coffee, Flavor ])
+        SharedTypeOrmModule.forFeature([ Coffee, Flavor, Event ])
       ],
       providers: [ CoffeesService ],
     }).compile();
@@ -219,6 +220,41 @@ describe('CoffeesService', () => {
 
       // TODO: [tests] add test case
       it.todo('should throw error for wrong ID (negative value)');
+    });
+  });
+
+  describe('recommendCoffee', () => {
+    it('should add coffee recommendation event and increase coffee recommendations number', async () => {
+      const N = 3;
+      const newCoffee: CoffeePublic = await coffeesService.create(createCoffeeDto);
+
+      // Flavors are assigned with spread value to emphasize that value should be with the same elements and not the
+      // same array
+      expect(newCoffee).toMatchObject({ ...createCoffeeDto, flavors: [ ...createCoffeeDto.flavors ] });
+      expect(newCoffee.id).toBeGreaterThanOrEqual(0);
+      expect(newCoffee.recommendations).toBe(0);
+
+      await Promise.all(Array.from({ length: N }, async () => {
+        const recSucceeded: boolean = await coffeesService.recommendCoffee(newCoffee.id);
+
+        expect(recSucceeded).toBe(true);
+      }));
+
+      const updatedCoffee: CoffeePublic = await coffeesService.findOne(newCoffee.id);
+
+      expect(updatedCoffee).toMatchObject({ ...newCoffee, recommendations: N });
+
+      const coffeeRecommendations = await coffeesService.findCoffeeRecommendations(newCoffee.id);
+
+      expect(coffeeRecommendations.length).toBe(N);
+
+      for (const recommendation of coffeeRecommendations) {
+        expect(recommendation).toMatchObject({
+          type: 'coffee',
+          name: 'recommend_coffee',
+          payload: { coffeeId: newCoffee.id }
+        });
+      }
     });
   });
 
