@@ -17,6 +17,8 @@ export class CoffeesService {
   constructor (
     @InjectRepository(Coffee)
     private readonly coffeeRepository: Repository<Coffee>,
+    @InjectRepository(Event)
+    private readonly eventRepository: Repository<Event>,
     @InjectConnection()
     private readonly dataSource: DataSource
   ) {}
@@ -29,6 +31,15 @@ export class CoffeesService {
     });
 
     return coffees.map(coffee => this.formatCoffeeToPublic(coffee));
+  }
+
+  async findCoffeeRecommendations (id: number): Promise<Event[]> {
+    return await this.eventRepository
+      .query(`
+        SELECT *
+        FROM "Events"
+        WHERE (payload->>'coffeeId')::int = $1
+      `, [ id ]);
   }
 
   async findOne (id: number): Promise<CoffeePublic> {
@@ -77,7 +88,6 @@ export class CoffeesService {
     return await this.findOne(id);
   }
 
-  // TODO: [tests] add tests for this method
   async recommendCoffee (id: number): Promise<boolean> {
     const coffee = await this.coffeeRepository.preload({ id });
 
@@ -87,8 +97,6 @@ export class CoffeesService {
 
     // TODO: [refactor] Extract to some kind "perform event" method
     try {
-      coffee.recommendations++;
-
       const recommendationEvent = new Event();
       // TODO: [types] convert to enum
       recommendationEvent.name = 'recommend_coffee';
@@ -97,7 +105,10 @@ export class CoffeesService {
       recommendationEvent.payload = { coffeeId: id };
 
       await withTransaction(this.dataSource, async (manager) => {
-        await manager.save(coffee);
+        await manager.update(Coffee, { id }, {
+        recommendations: () => `recommendations + 1`
+        });
+
         await manager.save(recommendationEvent);
       });
 

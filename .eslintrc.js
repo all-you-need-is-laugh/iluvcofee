@@ -139,6 +139,7 @@ module.exports = {
         'paramtype',
         'postgres',
         'promisify',
+        'readonly',
         'redis',
         'superagent',
         'supertest',

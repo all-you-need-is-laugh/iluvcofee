@@ -15,6 +15,8 @@ class TypeOrmPgConfig implements PostgresConnectionOptions {
   @FromEnv('POSTGRES_HOST')
   readonly host: string;
 
+  // readonly logging = true;
+
   @FromEnv('POSTGRES_PASSWORD')
   readonly password: string;
 
