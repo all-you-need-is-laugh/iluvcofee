@@ -1,6 +1,29 @@
 version: "3"
 
 services:
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    ports:
+      - "${MONGO_PORT:-22222}:27017"
+    volumes:
+      - /data/db
+      - /data/configdb
+    networks:
+      - default
+
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express
+    ports:
+      - 27127:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+    depends_on:
+      - mongo
+    networks:
+      - default
+
   postgres:
     container_name: postgres
     image: postgres:latest
@@ -31,6 +54,29 @@ services:
       - default
     depends_on:
       - postgres
+
+  test-mongo:
+    container_name: test-mongo
+    image: mongo:latest
+    ports:
+      - "${MONGO_PORT:-22222}:27017"
+    volumes:
+      - /data/db
+      - /data/configdb
+    networks:
+      - test
+
+  test-mongo-express:
+    container_name: test-mongo-express
+    image: mongo-express
+    ports:
+      - 27127:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://test-mongo:27017/
+    depends_on:
+      - test-mongo
+    networks:
+      - test
 
   test-postgres:
     container_name: test-postgres

@@ -1,8 +1,12 @@
 import { applyDecorators } from '@nestjs/common';
-import { Expose, Transform } from 'class-transformer';
+import { Expose, Transform, TransformFnParams } from 'class-transformer';
 import { IsNotEmpty } from 'class-validator';
 
-import { BindToEnv, METADATA_ENV_VARS_KEY, SimpleTransform } from './bind-to-env.decorator';
+import { BindToEnv, METADATA_ENV_VARS_KEY } from './bind-to-env.decorator';
+
+interface SimpleTransform {
+  (value: string): TransformFnParams['value']
+}
 
 // FIXME: [config] supports only 1 property depending on the same env var
 export function FromEnv (envVarName: string, transform?: SimpleTransform): PropertyDecorator {

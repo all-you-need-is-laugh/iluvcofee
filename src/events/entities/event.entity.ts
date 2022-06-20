@@ -1,17 +1,16 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-@Entity('Events')
-export class Event {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+@Schema()
+export class Event extends Document {
+  @Prop()
   type: string;
 
-  @Index()
-  @Column()
+  @Prop()
   name: string;
 
-  @Column('json')
+  @Prop({ type: Object })
   payload: Record<string, unknown>;
 }
+
+export const EventSchema = SchemaFactory.createForClass(Event);

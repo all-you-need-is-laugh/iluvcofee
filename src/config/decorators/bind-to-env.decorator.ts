@@ -1,4 +1,3 @@
-import { TransformFnParams } from 'class-transformer';
 import { getMetadataStorage, ValidationArguments, ValidationOptions } from 'class-validator';
 import { ConstraintMetadata } from 'class-validator/types/metadata/ConstraintMetadata';
 
@@ -8,10 +7,6 @@ interface DecoratorGenerator {
   // allow `any` here because we really don't care about type of arguments - in this case arguments can be really any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (...args: any[]): PropertyDecorator
-}
-
-export interface SimpleTransform {
-  (value: string): TransformFnParams['value']
 }
 
 // TODO: [config] Remove this decorator in favor of smarter `exceptionFactory` inside `ConfigPipe`

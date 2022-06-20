@@ -7,7 +7,8 @@ import { assertObject } from '../../test/utils/assertions';
 import { checkRejection } from '../../test/utils/checkRejection';
 import { maxNumber } from '../../test/utils/maxNumber';
 import { SharedConfigModule } from '../config/shared-config.module';
-import { Event } from '../events/entities/event.entity';
+import { Event, EventSchema } from '../events/entities/event.entity';
+import { SharedMongooseModule } from '../mongoose/shared-mongoose.module';
 import { SharedTypeOrmModule } from '../typeorm/shared-typeorm.module';
 import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
@@ -37,7 +38,14 @@ describe('CoffeesService', () => {
       imports: [
         SharedConfigModule.forRoot(),
         SharedTypeOrmModule.forRoot(),
-        SharedTypeOrmModule.forFeature([ Coffee, Flavor, Event ])
+        SharedTypeOrmModule.forFeature([ Coffee, Flavor ]),
+        SharedMongooseModule.forRoot(),
+        SharedMongooseModule.forFeature([
+          {
+            name: Event.name,
+            schema: EventSchema
+          }
+        ]),
       ],
       providers: [ CoffeesService ],
     }).compile();
