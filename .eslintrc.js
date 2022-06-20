@@ -82,6 +82,10 @@ module.exports = {
         message: 'TypeOrmModule from @nestjs/typeorm is forbidden - use SharedTypeOrmModule instead'
       },
       {
+        selector: 'ImportDeclaration[source.value=@nestjs/mongoose] > ImportSpecifier[imported.name="MongooseModule"]',
+        message: 'MongooseModule from @nestjs/mongoose is forbidden - use SharedMongooseModule instead'
+      },
+      {
         selector: 'ImportDeclaration[source.value=@nestjs/swagger] > ImportSpecifier[imported.name="OmitType"]',
         message: 'OmitType from @nestjs/swagger is forbidden - use PickType with array of needed fields instead'
       },
@@ -134,6 +138,7 @@ module.exports = {
         'localhost',
         'metadatas',
         'metatype',
+        'mongodb',
         'nullable',
         'orm',
         'paramtype',
@@ -147,6 +152,7 @@ module.exports = {
         'typeorm',
         'unknownimize',
         'unref',
+        'uri',
         'utf',
         'zadd',
         'zrange',
