@@ -53,7 +53,7 @@
         "typeorm:migration:revert": "yarn typeorm migration:revert -d src/typeorm/dataSource.ts",
         "# Examples:": "",
         "- create empty migration          ": "yarn typeorm:migration:create src/typeorm/migrations/Change_Schema_Manually",
-        "- generate migration from entities": "yarn typeorm:migration:generate src/typeorm/migrations/Added_Some_Entity",
+        "- generate migration from entities": "yarn typeorm:migration:generate Added_Some_Entity",
         "- run pending migrations          ": "yarn typeorm:migration:run",
         "- revert migrations               ": "yarn typeorm:migration:revert",
         "------------------------------------------\n  GITHUB ACTIONS SCRIPTS": "----------------------------------------",
