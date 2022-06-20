@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
+import { Model } from 'mongoose';
 import { DataSource, Repository } from 'typeorm';
 
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
@@ -17,8 +19,8 @@ export class CoffeesService {
   constructor (
     @InjectRepository(Coffee)
     private readonly coffeeRepository: Repository<Coffee>,
-    @InjectRepository(Event)
-    private readonly eventRepository: Repository<Event>,
+    @InjectModel(Event.name)
+    private readonly eventModel: Model<Event>,
     @InjectConnection()
     private readonly dataSource: DataSource
   ) {}
@@ -34,12 +36,7 @@ export class CoffeesService {
   }
 
   async findCoffeeRecommendations (id: number): Promise<Event[]> {
-    return await this.eventRepository
-      .query(`
-        SELECT *
-        FROM "Events"
-        WHERE (payload->>'coffeeId')::int = $1
-      `, [ id ]);
+    return await this.eventModel.find({ payload: { coffeeId: id } }).exec();
   }
 
   async findOne (id: number): Promise<CoffeePublic> {
@@ -97,19 +94,14 @@ export class CoffeesService {
 
     // TODO: [refactor] Extract to some kind "perform event" method
     try {
-      const recommendationEvent = new Event();
-      // TODO: [types] convert to enum
-      recommendationEvent.name = 'recommend_coffee';
-      // TODO: [types] convert to enum
-      recommendationEvent.type = 'coffee';
-      recommendationEvent.payload = { coffeeId: id };
+      await new this.eventModel({
+        name: 'recommend_coffee',
+        type: 'coffee',
+        payload: { coffeeId: id },
+      }).save();
 
-      await withTransaction(this.dataSource, async (manager) => {
-        await manager.update(Coffee, { id }, {
+      await this.coffeeRepository.update({ id }, {
         recommendations: () => `recommendations + 1`
-        });
-
-        await manager.save(recommendationEvent);
       });
 
       return true;
